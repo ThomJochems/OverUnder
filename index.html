@@ -375,11 +375,16 @@ function betCardHtml(b, me, isPublic){
     ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:18px;font-weight:500">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
     : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-value">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
 
-  let wagerRow='', settleRow='', resultRow='';
+  let wagerRow='', settleRow='', resultRow='', actionRow='';
 
   if(myWager){
     const sideClass=myWager.side==='over'?'my-wager-side-over':'my-wager-side-under';
     wagerRow=`<div class="my-wager-row"><span class="line-label">My pick</span><span class="${sideClass}">${myWager.side.toUpperCase()}</span></div>`;
+  } else if(b.status==='open'&&!isSubject){
+    actionRow=`<div class="ou-btns">
+      <button class="ou-btn ou-btn-over" onclick="placeWager(${b.id},'over')"><span class="ou-side">OVER</span><span class="ou-odds">Bet</span></button>
+      <button class="ou-btn ou-btn-under" onclick="placeWager(${b.id},'under')"><span class="ou-side">UNDER</span><span class="ou-odds">Bet</span></button>
+    </div>`;
   }
 
   if(b.status==='settled'&&!isSubject){
@@ -397,13 +402,13 @@ function betCardHtml(b, me, isPublic){
     <div class="bet-head"><div class="${titleClass}">${titleText}</div>${statusBadge}</div>
     <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">Subject: ${isSubject?'<b>you</b>':b.subject} · ${b.cat||'General'}</div>
     ${lineDisplay}
-    ${wagerRow}${resultRow}${settleRow}
+    ${actionRow}${wagerRow}${resultRow}${settleRow}
   </div>`;
 }
 
 function renderMy(){
   const me=S.current;
-  const mine=S.bets.filter(b=>b.wagers.find(w=>w.person===me)||b.creator===me);
+  const mine=S.bets.filter(b=>b.wagers.find(w=>w.person===me));
   const open=mine.filter(b=>b.status==='open');
   const settled=mine.filter(b=>b.status==='settled');
   const myStake=open.reduce((s,b)=>s+(b.wagers.find(w=>w.person===me)?.amount||0),0);
@@ -475,6 +480,16 @@ function renderCreate(){
   const me=S.current;
   const others=PLAYERS.filter(p=>p.name!==me);
   document.getElementById('d-create').innerHTML=`<div class="form-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);">Manage lines</div>
+      <button class="btn btn-sm btn-red" onclick="clearAllLines()">Clear all lines</button>
+    </div>
+    <div class="frow"><label class="flabel">Bulk add lines</label>
+      <textarea id="f-bulk" placeholder="Times Chris orders dessert | Chris | 2.5 | times | Food & drink&#10;Minutes Thom is late | Thom | 10 | minutes | Social"></textarea></div>
+    <div class="hint" style="margin-top:0;margin-bottom:10px;">Paste one line per row in this format: description | subject | line | unit | category</div>
+    <button class="btn" style="width:100%;margin-bottom:12px;" onclick="bulkCreateBets()">Import pasted lines</button>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;">Add a single line</div>
     <div class="frow"><label class="flabel">What are we betting on?</label>
       <textarea id="f-desc" placeholder="e.g. Times Thom checks his phone during dinner"></textarea></div>
     <div class="fgrid">
@@ -522,6 +537,71 @@ function createBet(){
   S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,wagers:[{person:S.current,amount:amt,side}]});
   saveRemoteState();
   dt('my');
+}
+
+function placeWager(id, side){
+  const b=S.bets.find(x=>x.id===id);
+  if(!b || b.status!=='open') return;
+  if(b.subject===S.current){ alert('You cannot bet on a line about yourself'); return; }
+  if(b.wagers.find(w=>w.person===S.current)){ alert('You already placed a bet on this line'); return; }
+
+  const raw=prompt(`How much do you want to bet on ${side.toUpperCase()}? Max 5`);
+  if(raw===null) return;
+  const amount=parseFloat(String(raw).replace(',', '.'));
+  if(isNaN(amount) || amount<=0){ alert('Enter a valid amount'); return; }
+  if(amount>5){ alert('Maximum bet is â‚¬5'); return; }
+
+  b.wagers.push({ person:S.current, amount, side });
+  saveRemoteState();
+  dt('my');
+}
+
+function clearAllLines(){
+  if(!confirm('Delete all current lines? This cannot be undone.')) return;
+  S.bets = [];
+  S.nextId = 1;
+  saveRemoteState();
+  dt('create');
+}
+
+function bulkCreateBets(){
+  const raw=document.getElementById('f-bulk').value.trim();
+  if(!raw){alert('Paste at least one line');return;}
+  const names = new Set(PLAYERS.map(p=>p.name));
+  const rows=raw.split('\n').map(r=>r.trim()).filter(Boolean);
+  const parsed=[];
+
+  for(const row of rows){
+    const parts=row.split('|').map(p=>p.trim());
+    if(parts.length < 4){
+      alert(`Could not import this row:\n${row}\n\nUse: description | subject | line | unit | category`);
+      return;
+    }
+    const [desc, subject, lineRaw, unit, categoryRaw] = parts;
+    const line=parseFloat(lineRaw);
+    if(!desc || !names.has(subject) || isNaN(line) || line < 0 || !unit){
+      alert(`Could not import this row:\n${row}`);
+      return;
+    }
+    parsed.push({
+      id: S.nextId++,
+      desc,
+      subject,
+      creator: S.current,
+      cat: categoryRaw || 'Other',
+      unit,
+      line,
+      status: 'open',
+      result: null,
+      wagers: [],
+    });
+  }
+
+  S.bets.push(...parsed);
+  document.getElementById('f-bulk').value='';
+  saveRemoteState();
+  alert(`Imported ${parsed.length} line${parsed.length===1?'':'s'}`);
+  dt('all');
 }
 
 function openSettle(id){
