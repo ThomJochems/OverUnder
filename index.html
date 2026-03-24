@@ -203,6 +203,13 @@ textarea { resize: vertical; min-height: 56px; }
 </div>
 
 <script>
+const CONFIG = {
+  // Fill these in to make the app load/save shared data through JSONBin.
+  jsonBinId: '69c2608eaa77b81da9141e35',
+  apiKey: '$2a$10$TjKftwh/7DpLfmx2r2ccj.okpkVZTpdNqZh7WycR9dB6ssH1nQF9K',
+  accessKey: '',
+};
+
 const PLAYERS = [
   {name:'Aidan',   bg:'#E6F1FB', fg:'#185FA5'},
   {name:'Chris',   bg:'#E1F5EE', fg:'#0F6E56'},
@@ -216,6 +223,7 @@ const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
   allFilter: null,
+  saving: false,
   nextId: 4,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
@@ -234,6 +242,67 @@ function pc(name){ return PLAYERS.find(p=>p.name===name)||{bg:'#F1EFE8',fg:'#5F5
 function av(name,sz=44,fs=15,ml=0){
   const c=pc(name);
   return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:500;flex-shrink:0;${ml?'margin-left:'+ml+'px':''}">${name.slice(0,2).toUpperCase()}</div>`;
+}
+
+function hasRemoteStorage(){
+  return Boolean(CONFIG.jsonBinId && CONFIG.apiKey);
+}
+
+function storageHeaders(){
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Master-Key': CONFIG.apiKey,
+  };
+  if(CONFIG.accessKey) headers['X-Access-Key'] = CONFIG.accessKey;
+  return headers;
+}
+
+function exportState(){
+  return {
+    pins: S.pins,
+    nextId: S.nextId,
+    bets: S.bets,
+  };
+}
+
+function applyLoadedState(data){
+  if(!data || typeof data !== 'object') return;
+  if(data.pins && typeof data.pins === 'object') S.pins = data.pins;
+  if(Array.isArray(data.bets)) S.bets = data.bets;
+  if(typeof data.nextId === 'number') S.nextId = data.nextId;
+}
+
+async function loadRemoteState(){
+  if(!hasRemoteStorage()) return;
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`, {
+      headers: storageHeaders(),
+    });
+    if(!res.ok) throw new Error(`Load failed: ${res.status}`);
+    const payload = await res.json();
+    applyLoadedState(payload.record || payload);
+  } catch (err) {
+    console.error(err);
+    alert('Could not load shared data from JSONBin. The page will keep using the local demo data.');
+  }
+}
+
+async function saveRemoteState(){
+  if(!hasRemoteStorage() || S.saving) return;
+  S.saving = true;
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}`, {
+      method: 'PUT',
+      headers: storageHeaders(),
+      body: JSON.stringify(exportState()),
+    });
+    if(!res.ok) throw new Error(`Save failed: ${res.status}`);
+  } catch (err) {
+    console.error(err);
+    alert('Could not save shared data to JSONBin.');
+  } finally {
+    S.saving = false;
+  }
 }
 
 function show(id){ ['s-players','s-pin','s-main','s-settle'].forEach(s=>document.getElementById(s).style.display=s===id?'block':'none'); }
@@ -268,7 +337,7 @@ function checkPin(){
   const name=S.current;
   if(S.pinMode==='set'){
     if(!S.confirmBuf){ S.confirmBuf=S.buf; S.buf=''; document.getElementById('pin-sub').textContent='Confirm your PIN'; updDots(); return; }
-    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; enterDash(); }
+    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; saveRemoteState(); enterDash(); }
     else{ updDots(true); setTimeout(()=>{ S.buf=''; S.confirmBuf=''; updDots(); document.getElementById('pin-sub').textContent='PINs didn\'t match — try again'; },600); }
   } else {
     if(S.buf===S.pins[name]){ enterDash(); }
@@ -451,6 +520,7 @@ function createBet(){
   if(isNaN(amt)||amt<=0){alert('Set your wager amount');return;}
   if(amt>5){alert('Maximum bet is €5');return;}
   S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,wagers:[{person:S.current,amount:amt,side}]});
+  saveRemoteState();
   dt('my');
 }
 
@@ -474,6 +544,7 @@ function confirmSettle(){
   if(!S.settleChoice){alert('Select a result');return;}
   const b=S.bets.find(x=>x.id===S.settleId);
   b.status='settled'; b.result=S.settleChoice;
+  saveRemoteState();
   show('s-main'); dt('my');
 }
 
@@ -495,5 +566,10 @@ function calcPnl(person){
 function wins(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side===b.result)).length; }
 function losses(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side!==b.result)).length; }
 
-renderPlayers();
+async function init(){
+  await loadRemoteState();
+  renderPlayers();
+}
+
+init();
 </script>
