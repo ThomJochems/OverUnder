@@ -1,0 +1,475 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.app { padding: 1rem 0; font-family: var(--font-sans); }
+.logo { font-size: 22px; font-weight: 500; letter-spacing: -0.5px; color: var(--color-text-primary); }
+.logo-over { color: #1D9E75; }
+.logo-under { color: #E24B4A; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.player-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.player-btn { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 18px 8px; cursor: pointer; font-family: var(--font-sans); transition: border-color 0.15s; text-align: center; }
+.player-btn:hover { border-color: #1D9E75; }
+.p-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; margin: 0 auto 8px; }
+.p-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.pin-wrap { max-width: 260px; margin: 0 auto; text-align: center; padding: 0.5rem 0 1rem; }
+.pin-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); }
+.pin-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+.pin-big-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; margin: 0 auto 1rem; }
+.pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
+.pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); background: transparent; transition: all 0.15s; }
+.pin-dot.filled { background: #1D9E75; border-color: #1D9E75; }
+.pin-dot.error { background: #E24B4A; border-color: #E24B4A; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 200px; margin: 0 auto; }
+.num-btn { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 13px; font-size: 18px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); color: var(--color-text-primary); transition: background 0.1s; }
+.num-btn:hover { background: var(--color-background-primary); border-color: var(--color-border-secondary); }
+.tabs { display: flex; gap: 4px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 4px; margin-bottom: 1.5rem; }
+.tab { flex: 1; padding: 7px 4px; text-align: center; font-size: 12px; border-radius: 6px; cursor: pointer; border: none; background: transparent; color: var(--color-text-secondary); font-family: var(--font-sans); transition: all 0.15s; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; border: 0.5px solid var(--color-border-tertiary); }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; }
+.stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.stat-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.sec-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+.bet-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+.bet-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.bet-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; margin-right: 10px; line-height: 1.4; }
+.bet-title.blurred { filter: blur(5px); user-select: none; }
+.badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.badge-open { background: #E6F1FB; color: #185FA5; }
+.badge-settled { background: #EAF3DE; color: #3B6D11; }
+.line-box { display: flex; align-items: center; justify-content: space-between; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; margin: 8px 0; }
+.line-label { font-size: 12px; color: var(--color-text-secondary); }
+.line-value { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.line-unit { font-size: 12px; color: var(--color-text-secondary); margin-left: 3px; }
+.ou-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.ou-btn { padding: 10px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); font-family: var(--font-sans); transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; }
+.ou-btn-over { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+.ou-btn-under { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
+.ou-btn-over:hover { background: #9FE1CB; }
+.ou-btn-under:hover { background: #F7C1C1; }
+.ou-btn .ou-side { font-size: 15px; font-weight: 500; }
+.ou-btn .ou-odds { font-size: 11px; opacity: 0.8; }
+.my-wager-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-top: 6px; padding-top: 8px; border-top: 0.5px solid var(--color-border-tertiary); }
+.my-wager-side-over { color: #0F6E56; font-weight: 500; }
+.my-wager-side-under { color: #A32D2D; font-weight: 500; }
+.pool-row { display: flex; gap: 12px; font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.pool-over { color: #0F6E56; }
+.pool-under { color: #A32D2D; }
+.subject-warning { font-size: 12px; color: #854F0B; background: #FAEEDA; padding: 7px 10px; border-radius: var(--border-radius-md); margin-bottom: 8px; }
+.btn { padding: 7px 14px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); font-family: var(--font-sans); transition: all 0.15s; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-green { background: #1D9E75; color: #E1F5EE; border-color: #1D9E75; }
+.btn-green:hover { background: #0F6E56; }
+.btn-red { background: #E24B4A; color: #FCEBEB; border-color: #E24B4A; }
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
+.form-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 1rem; }
+.flabel { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 5px; display: block; }
+.frow { margin-bottom: 12px; }
+input[type=text],input[type=number],select,textarea { width: 100%; padding: 8px 10px; font-size: 14px; font-family: var(--font-sans); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
+textarea { resize: vertical; min-height: 56px; }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lb-row { display: flex; align-items: center; padding: 11px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.lb-row:last-child { border-bottom: none; }
+.lb-rank { font-size: 13px; font-weight: 500; width: 22px; color: var(--color-text-secondary); flex-shrink: 0; }
+.lb-rank.gold { color: #BA7517; }
+.lb-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; margin-right: 10px; }
+.lb-info { flex: 1; }
+.lb-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.lb-record { font-size: 12px; color: var(--color-text-secondary); }
+.lb-pnl { font-size: 15px; font-weight: 500; }
+.pnl-pos { color: #1D9E75; }
+.pnl-neg { color: #E24B4A; }
+.pnl-blur { filter: blur(5px); }
+.wager-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.modal-wrap { background: rgba(0,0,0,0.45); min-height: 500px; display: flex; align-items: center; justify-content: center; }
+.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 20px; width: 90%; max-width: 340px; border: 0.5px solid var(--color-border-tertiary); }
+.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 10px; color: var(--color-text-primary); }
+.settle-opt { padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 8px; cursor: pointer; font-size: 14px; color: var(--color-text-primary); transition: all 0.12s; }
+.settle-opt.over { border-color: #5DCAA5; background: #E1F5EE; color: #085041; }
+.settle-opt.under { border-color: #F09595; background: #FCEBEB; color: #791F1F; }
+.settle-opt.selected.over { background: #5DCAA5; }
+.settle-opt.selected.under { background: #F09595; }
+.modal-btns { display: flex; gap: 8px; margin-top: 14px; }
+.top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.top-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+.empty { text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px; }
+.hint { font-size: 11px; color: var(--color-text-secondary); text-align: center; margin-top: 8px; }
+</style>
+
+<div class="app" id="app">
+
+<div id="s-players">
+  <div class="header">
+    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+  </div>
+  <div style="text-align:center;margin-bottom:1.25rem;">
+    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">Who are you?</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);">Select your name to enter your dashboard</div>
+  </div>
+  <div class="player-grid" id="player-grid"></div>
+</div>
+
+<div id="s-pin" style="display:none">
+  <div class="header">
+    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+    <button class="btn btn-sm" onclick="goBack()">Back</button>
+  </div>
+  <div class="pin-wrap">
+    <div class="pin-big-avatar" id="pin-av"></div>
+    <div class="pin-title" id="pin-title">Enter your PIN</div>
+    <div class="pin-sub" id="pin-sub">Keep your bets secret</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot"></div><div class="pin-dot"></div>
+      <div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="numpad">
+      <button class="num-btn" onclick="np('1')">1</button>
+      <button class="num-btn" onclick="np('2')">2</button>
+      <button class="num-btn" onclick="np('3')">3</button>
+      <button class="num-btn" onclick="np('4')">4</button>
+      <button class="num-btn" onclick="np('5')">5</button>
+      <button class="num-btn" onclick="np('6')">6</button>
+      <button class="num-btn" onclick="np('7')">7</button>
+      <button class="num-btn" onclick="np('8')">8</button>
+      <button class="num-btn" onclick="np('9')">9</button>
+      <div></div>
+      <button class="num-btn" onclick="np('0')">0</button>
+      <button class="num-btn" onclick="nd()">⌫</button>
+    </div>
+    <div class="hint" id="pin-hint"></div>
+  </div>
+</div>
+
+<div id="s-main" style="display:none">
+  <div class="header">
+    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+    <button class="btn btn-sm" onclick="logout()">Lock</button>
+  </div>
+  <div class="top-bar">
+    <div id="main-av"></div>
+    <div class="top-name" id="main-name"></div>
+    <button class="btn btn-sm btn-green" onclick="dt('create')">+ New line</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="dtab-my" onclick="dt('my')">My bets</button>
+    <button class="tab" id="dtab-all" onclick="dt('all')">All lines</button>
+    <button class="tab" id="dtab-lb" onclick="dt('lb')">Standings</button>
+    <button class="tab" id="dtab-create" onclick="dt('create')">+ New</button>
+  </div>
+  <div id="d-my"></div>
+  <div id="d-all" style="display:none"></div>
+  <div id="d-lb" style="display:none"></div>
+  <div id="d-create" style="display:none"></div>
+</div>
+
+<div id="s-settle" style="display:none">
+  <div class="modal-wrap">
+    <div class="modal">
+      <h3>Settle line</h3>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:4px;" id="settle-desc"></div>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;" id="settle-line-disp"></div>
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;">What was the actual result?</div>
+      <div id="settle-opts"></div>
+      <div class="modal-btns">
+        <button class="btn" style="flex:1" onclick="closeSettle()">Cancel</button>
+        <button class="btn btn-green" style="flex:1" onclick="confirmSettle()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const PLAYERS = [
+  {name:'Aidan',   bg:'#E6F1FB', fg:'#185FA5'},
+  {name:'Chris',   bg:'#E1F5EE', fg:'#0F6E56'},
+  {name:'Jorik',   bg:'#FAEEDA', fg:'#854F0B'},
+  {name:'Thijmen', bg:'#FBEAF0', fg:'#993556'},
+  {name:'Thijs',   bg:'#EAF3DE', fg:'#3B6D11'},
+  {name:'Thom',    bg:'#EEEDFE', fg:'#534AB7'},
+];
+
+const S = {
+  pins: {}, buf: '', pinMode: null, confirmBuf: '',
+  current: null, settleId: null, settleChoice: null,
+  nextId: 4,
+  bets: [
+    {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
+     unit:"complaints", line:2.5, status:"open", result:null,
+     wagers:[{person:"Aidan",amount:10,side:"over"},{person:"Jorik",amount:8,side:"under"}]},
+    {id:2, desc:"Hours Thijmen spends navigating vs following others", subject:"Thijmen", creator:"Thijs",
+     unit:"hours", line:4.5, status:"open", result:null,
+     wagers:[{person:"Thijs",amount:15,side:"over"},{person:"Thom",amount:10,side:"under"},{person:"Aidan",amount:5,side:"over"}]},
+    {id:3, desc:"Times Jorik is last one ready in the morning", subject:"Jorik", creator:"Chris",
+     unit:"mornings", line:3.5, status:"settled", result:"over",
+     wagers:[{person:"Chris",amount:10,side:"over"},{person:"Thijmen",amount:7,side:"under"}]},
+  ]
+};
+
+function pc(name){ return PLAYERS.find(p=>p.name===name)||{bg:'#F1EFE8',fg:'#5F5E5A'}; }
+function av(name,sz=44,fs=15,ml=0){
+  const c=pc(name);
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:500;flex-shrink:0;${ml?'margin-left:'+ml+'px':''}">${name.slice(0,2).toUpperCase()}</div>`;
+}
+
+function show(id){ ['s-players','s-pin','s-main','s-settle'].forEach(s=>document.getElementById(s).style.display=s===id?'block':'none'); }
+
+function renderPlayers(){
+  document.getElementById('player-grid').innerHTML=PLAYERS.map(p=>`
+    <button class="player-btn" onclick="selPlayer('${p.name}')">
+      <div class="p-avatar" style="background:${p.bg};color:${p.fg}">${p.name.slice(0,2).toUpperCase()}</div>
+      <div class="p-name">${p.name}</div>
+    </button>`).join('');
+}
+
+function selPlayer(name){
+  S.current=name; S.buf=''; S.confirmBuf='';
+  document.getElementById('pin-av').innerHTML=av(name,56,20);
+  if(S.pins[name]){ document.getElementById('pin-title').textContent=`Hey ${name}!`; document.getElementById('pin-sub').textContent='Enter your PIN'; S.pinMode='enter'; }
+  else { document.getElementById('pin-title').textContent='Set your PIN'; document.getElementById('pin-sub').textContent='Choose a 4-digit PIN — keep it secret!'; S.pinMode='set'; }
+  document.getElementById('pin-hint').textContent='';
+  updDots(); show('s-pin');
+}
+
+function np(d){ if(S.buf.length>=4)return; S.buf+=d; updDots(); if(S.buf.length===4)setTimeout(checkPin,180); }
+function nd(){ S.buf=S.buf.slice(0,-1); updDots(); }
+function updDots(err=false){
+  document.querySelectorAll('.pin-dot').forEach((d,i)=>{
+    d.classList.toggle('filled',i<S.buf.length&&!err);
+    d.classList.toggle('error',err);
+  });
+}
+function checkPin(){
+  const name=S.current;
+  if(S.pinMode==='set'){
+    if(!S.confirmBuf){ S.confirmBuf=S.buf; S.buf=''; document.getElementById('pin-sub').textContent='Confirm your PIN'; updDots(); return; }
+    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; enterDash(); }
+    else{ updDots(true); setTimeout(()=>{ S.buf=''; S.confirmBuf=''; updDots(); document.getElementById('pin-sub').textContent='PINs didn\'t match — try again'; },600); }
+  } else {
+    if(S.buf===S.pins[name]){ enterDash(); }
+    else{ updDots(true); setTimeout(()=>{ S.buf=''; updDots(); },600); }
+  }
+}
+function enterDash(){
+  document.getElementById('main-av').innerHTML=av(S.current,32,12);
+  document.getElementById('main-name').textContent=S.current;
+  show('s-main'); dt('my');
+}
+function logout(){ S.current=null; S.buf=''; show('s-players'); }
+function goBack(){ S.buf=''; S.confirmBuf=''; show('s-players'); }
+
+function dt(tab){
+  ['my','all','lb','create'].forEach(t=>{
+    document.getElementById('d-'+t).style.display=t===tab?'block':'none';
+    const el=document.getElementById('dtab-'+t); if(el) el.classList.toggle('active',t===tab);
+  });
+  if(tab==='my') renderMy();
+  if(tab==='all') renderAll();
+  if(tab==='lb') renderLb();
+  if(tab==='create') renderCreate();
+}
+
+function overPool(b){ return b.wagers.filter(w=>w.side==='over').reduce((s,w)=>s+w.amount,0); }
+function underPool(b){ return b.wagers.filter(w=>w.side==='under').reduce((s,w)=>s+w.amount,0); }
+function totalPool(b){ return overPool(b)+underPool(b); }
+
+function betCardHtml(b, me, isPublic){
+  const isSubject = b.subject===me;
+  const myWager = b.wagers.find(w=>w.person===me);
+  const op=overPool(b), up=underPool(b), tp=totalPool(b);
+  const statusBadge = b.status==='open'?'<span class="badge badge-open">Open</span>':'<span class="badge badge-settled">Settled</span>';
+  const titleClass = isSubject?'bet-title blurred':'bet-title';
+  const titleText = isSubject?'?????? ????? ??? ???':b.desc;
+  const subjectWarn = isSubject?`<div class="subject-warning">You are the subject — description hidden</div>`:'';
+  const lineDisplay = isSubject
+    ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:18px;font-weight:500">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
+    : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-value">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
+
+  let poolRow='', wagerRow='', settleRow='', resultRow='';
+
+  if(!isSubject){
+    poolRow=`<div class="pool-row"><span class="pool-over">OVER €${op}</span><span style="color:var(--color-border-secondary)">|</span><span class="pool-under">UNDER €${up}</span><span style="margin-left:auto">€${tp} total</span></div>`;
+  } else {
+    poolRow=`<div class="pool-row"><span style="filter:blur(4px)">OVER €?? | UNDER €??</span></div>`;
+  }
+
+  if(myWager){
+    const sideClass=myWager.side==='over'?'my-wager-side-over':'my-wager-side-under';
+    wagerRow=`<div class="my-wager-row"><span class="line-label">My wager</span><span class="${sideClass}">${myWager.side.toUpperCase()} · €${myWager.amount}</span></div>`;
+  }
+
+  if(b.status==='settled'&&!isSubject){
+    const rc=b.result==='over'?'#0F6E56':'#A32D2D';
+    const rbg=b.result==='over'?'#E1F5EE':'#FCEBEB';
+    resultRow=`<div style="margin-top:8px"><span style="font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:${rbg};color:${rc}">Result: ${b.result.toUpperCase()}</span></div>`;
+  }
+
+  if(b.status==='open'&&!isSubject){
+    settleRow=`<div style="margin-top:8px"><button class="btn btn-sm" onclick="openSettle(${b.id})">Settle</button></div>`;
+  }
+
+  return `<div class="bet-card">
+    ${subjectWarn}
+    <div class="bet-head"><div class="${titleClass}">${titleText}</div>${statusBadge}</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">Subject: ${isSubject?'<b>you</b>':b.subject} · ${b.cat||'General'}</div>
+    ${lineDisplay}
+    ${poolRow}${wagerRow}${resultRow}${settleRow}
+  </div>`;
+}
+
+function renderMy(){
+  const me=S.current;
+  const mine=S.bets.filter(b=>b.wagers.find(w=>w.person===me)||b.creator===me);
+  const open=mine.filter(b=>b.status==='open');
+  const settled=mine.filter(b=>b.status==='settled');
+  const myStake=open.reduce((s,b)=>s+(b.wagers.find(w=>w.person===me)?.amount||0),0);
+  const pnl=calcPnl(me);
+  const pnlColor=pnl>=0?'#1D9E75':'#E24B4A';
+  let html=`<div class="stats-grid">
+    <div class="stat"><div class="stat-label">Open bets</div><div class="stat-value">${open.length}</div></div>
+    <div class="stat"><div class="stat-label">At stake</div><div class="stat-value">€${myStake}</div></div>
+    <div class="stat"><div class="stat-label">P&L</div><div class="stat-value" style="color:${pnlColor}">${pnl>=0?'+':''}€${Math.abs(pnl).toFixed(2)}</div></div>
+  </div>`;
+  if(open.length){ html+=`<div class="sec-title">Open</div>`+open.map(b=>betCardHtml(b,me,false)).join(''); }
+  if(settled.length){ html+=`<div class="sec-title" style="margin-top:1rem">Settled</div>`+settled.map(b=>betCardHtml(b,me,false)).join(''); }
+  if(!mine.length) html+=`<div class="empty">No bets yet — create a new line!</div>`;
+  document.getElementById('d-my').innerHTML=html;
+}
+
+function renderAll(){
+  const me=S.current;
+  const open=S.bets.filter(b=>b.status==='open');
+  const settled=S.bets.filter(b=>b.status==='settled');
+  const tp=S.bets.reduce((s,b)=>s+totalPool(b),0);
+  let html=`<div class="stats-grid">
+    <div class="stat"><div class="stat-label">Open lines</div><div class="stat-value">${open.length}</div></div>
+    <div class="stat"><div class="stat-label">Total pool</div><div class="stat-value">€${tp}</div></div>
+    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:#1D9E75">${settled.length}</div></div>
+  </div>`;
+  if(open.length){ html+=`<div class="sec-title">Open lines</div>`+open.map(b=>betCardHtml(b,me,true)).join(''); }
+  if(settled.length){ html+=`<div class="sec-title" style="margin-top:1rem">Settled</div>`+settled.map(b=>betCardHtml(b,me,true)).join(''); }
+  document.getElementById('d-all').innerHTML=html;
+}
+
+function renderLb(){
+  const me=S.current;
+  const sorted=[...PLAYERS].sort((a,b)=>calcPnl(b.name)-calcPnl(a.name));
+  const tp=S.bets.reduce((s,b)=>s+totalPool(b),0);
+  let html=`<div class="stats-grid">
+    <div class="stat"><div class="stat-label">Players</div><div class="stat-value">${PLAYERS.length}</div></div>
+    <div class="stat"><div class="stat-label">Total wagered</div><div class="stat-value">€${tp}</div></div>
+    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:#1D9E75">${S.bets.filter(b=>b.status==='settled').length}</div></div>
+  </div>
+  <div class="form-card">`;
+  html+=sorted.map((p,i)=>{
+    const pnl=calcPnl(p.name);
+    const isMe=p.name===me;
+    const pnlStr=(pnl>=0?'+':'')+'€'+Math.abs(pnl).toFixed(2);
+    const pnlCls=isMe?(pnl>=0?'lb-pnl pnl-pos':'lb-pnl pnl-neg'):'lb-pnl pnl-blur';
+    const w=wins(p.name), l=losses(p.name);
+    return `<div class="lb-row">
+      <div class="lb-rank ${i===0?'gold':''}">${i===0?'★':(i+1)}</div>
+      ${av(p.name,32,12,0).replace('flex-shrink:0','flex-shrink:0').replace('</div>','</div>').replace('<div style="','<div class="lb-avatar" style="')}
+      <div class="lb-info"><div class="lb-name">${p.name}${isMe?' (you)':''}</div><div class="lb-record">${w}W · ${l}L</div></div>
+      <div class="${pnlCls}">${pnlStr}</div>
+    </div>`;
+  }).join('');
+  html+=`</div><div class="hint">Other players' P&L amounts are hidden</div>`;
+  document.getElementById('d-lb').innerHTML=html;
+}
+
+function renderCreate(){
+  const me=S.current;
+  const others=PLAYERS.filter(p=>p.name!==me);
+  document.getElementById('d-create').innerHTML=`<div class="form-card">
+    <div class="frow"><label class="flabel">What are we betting on?</label>
+      <textarea id="f-desc" placeholder="e.g. Times Thom checks his phone during dinner"></textarea></div>
+    <div class="fgrid">
+      <div class="frow"><label class="flabel">Subject (can't see the line)</label>
+        <select id="f-subj"><option value="">Select...</option>${others.map(p=>`<option>${p.name}</option>`).join('')}</select></div>
+      <div class="frow"><label class="flabel">Category</label>
+        <select id="f-cat"><option>Food & drink</option><option>Activities</option><option>Sleep</option><option>Social</option><option>Navigation</option><option>Other</option></select></div>
+    </div>
+    <div class="divider"></div>
+    <div class="fgrid">
+      <div class="frow"><label class="flabel">The line</label>
+        <input type="number" id="f-line" placeholder="e.g. 3.5" step="0.5" min="0"></div>
+      <div class="frow"><label class="flabel">Unit</label>
+        <input type="text" id="f-unit" placeholder="e.g. times, hours, drinks"></div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">
+      Bettors pick <span style="color:#0F6E56;font-weight:500">OVER</span> (will exceed the line) or <span style="color:#A32D2D;font-weight:500">UNDER</span> (will stay below). Winners split the losers' pool proportionally.
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;">Your wager</div>
+    <div class="fgrid">
+      <div class="frow"><label class="flabel">Your side</label>
+        <select id="f-side"><option value="over">OVER</option><option value="under">UNDER</option></select></div>
+      <div class="frow"><label class="flabel">Amount (€)</label>
+        <input type="number" id="f-amt" placeholder="€0" min="1"></div>
+    </div>
+    <button class="btn btn-green" style="width:100%;margin-top:4px;" onclick="createBet()">Post line</button>
+  </div>`;
+}
+
+function createBet(){
+  const desc=document.getElementById('f-desc').value.trim();
+  const subj=document.getElementById('f-subj').value;
+  const cat=document.getElementById('f-cat').value;
+  const line=parseFloat(document.getElementById('f-line').value);
+  const unit=document.getElementById('f-unit').value.trim()||'times';
+  const side=document.getElementById('f-side').value;
+  const amt=parseFloat(document.getElementById('f-amt').value);
+  if(!desc){alert('Add a description');return;}
+  if(!subj){alert('Select a subject');return;}
+  if(isNaN(line)||line<0){alert('Set a line number');return;}
+  if(isNaN(amt)||amt<=0){alert('Set your wager amount');return;}
+  S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,wagers:[{person:S.current,amount:amt,side}]});
+  dt('my');
+}
+
+function openSettle(id){
+  S.settleId=id; S.settleChoice=null;
+  const b=S.bets.find(x=>x.id===id);
+  document.getElementById('settle-desc').textContent=b.desc;
+  document.getElementById('settle-line-disp').textContent=`Line: ${b.line} ${b.unit}`;
+  document.getElementById('settle-opts').innerHTML=`
+    <div class="settle-opt over" onclick="pickSettle('over',this)">OVER ${b.line} — exceeded the line</div>
+    <div class="settle-opt under" onclick="pickSettle('under',this)">UNDER ${b.line} — stayed below</div>`;
+  show('s-settle');
+}
+function pickSettle(val,el){
+  S.settleChoice=val;
+  document.querySelectorAll('.settle-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function closeSettle(){ show('s-main'); dt('my'); }
+function confirmSettle(){
+  if(!S.settleChoice){alert('Select a result');return;}
+  const b=S.bets.find(x=>x.id===S.settleId);
+  b.status='settled'; b.result=S.settleChoice;
+  show('s-main'); dt('my');
+}
+
+function calcPnl(person){
+  let t=0;
+  S.bets.filter(b=>b.status==='settled').forEach(b=>{
+    const mine=b.wagers.find(w=>w.person===person);
+    if(!mine)return;
+    if(mine.side===b.result){
+      const losers=b.wagers.filter(w=>w.side!==b.result);
+      const winners=b.wagers.filter(w=>w.side===b.result);
+      const lostPool=losers.reduce((s,w)=>s+w.amount,0);
+      const wonPool=winners.reduce((s,w)=>s+w.amount,0);
+      t+=lostPool*(mine.amount/wonPool);
+    } else { t-=mine.amount; }
+  });
+  return t;
+}
+function wins(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side===b.result)).length; }
+function losses(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side!==b.result)).length; }
+
+renderPlayers();
+</script>
