@@ -1,142 +1,680 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OverUnder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --font-sans: "Segoe UI", Arial, sans-serif;
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #6b7280;
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f6f7f9;
-  --color-border-secondary: #cbd5e1;
-  --color-border-tertiary: #e5e7eb;
-  --border-radius-md: 10px;
-  --border-radius-lg: 16px;
+  --green: #1D9E75;
+  --green-light: #E1F5EE;
+  --green-mid: #5DCAA5;
+  --green-dark: #0F6E56;
+  --red: #E24B4A;
+  --red-light: #FCEBEB;
+  --red-mid: #F09595;
+  --red-dark: #A32D2D;
+  --blue-light: #E6F1FB;
+  --blue: #185FA5;
+  --amber-light: #FAEEDA;
+  --amber: #854F0B;
+  --text: #111827;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --border-2: #d1d5db;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --nav-h: 64px;
 }
 
-body {
-  font-family: var(--font-sans);
-  background: #f3f4f6;
-  color: var(--color-text-primary);
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overscroll-behavior: none;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-.app { padding: 1rem 0; font-family: var(--font-sans); }
-.logo { font-size: 22px; font-weight: 500; letter-spacing: -0.5px; color: var(--color-text-primary); }
-.logo-over { color: #1D9E75; }
-.logo-under { color: #E24B4A; }
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-.player-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-.player-btn { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 18px 8px; cursor: pointer; font-family: var(--font-sans); transition: border-color 0.15s; text-align: center; }
-.player-btn:hover { border-color: #1D9E75; }
-.p-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 500; margin: 0 auto 8px; }
-.p-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-.pin-wrap { max-width: 260px; margin: 0 auto; text-align: center; padding: 0.5rem 0 1rem; }
-.pin-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); }
-.pin-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
-.pin-big-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; margin: 0 auto 1rem; }
-.pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
-.pin-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); background: transparent; transition: all 0.15s; }
-.pin-dot.filled { background: #1D9E75; border-color: #1D9E75; }
-.pin-dot.error { background: #E24B4A; border-color: #E24B4A; }
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 200px; margin: 0 auto; }
-.num-btn { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 13px; font-size: 18px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); color: var(--color-text-primary); transition: background 0.1s; }
-.num-btn:hover { background: var(--color-background-primary); border-color: var(--color-border-secondary); }
-.tabs { display: flex; gap: 4px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 4px; margin-bottom: 1.5rem; }
-.tab { flex: 1; padding: 7px 4px; text-align: center; font-size: 12px; border-radius: 6px; cursor: pointer; border: none; background: transparent; color: var(--color-text-secondary); font-family: var(--font-sans); transition: all 0.15s; }
-.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; border: 0.5px solid var(--color-border-tertiary); }
-.person-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
-.person-tab { padding: 10px 12px; text-align: center; font-size: 13px; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); color: var(--color-text-secondary); font-family: var(--font-sans); transition: all 0.15s; }
-.person-tab.active { color: var(--color-text-primary); font-weight: 500; border-color: #1D9E75; background: #E1F5EE; }
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; }
-.stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
-.stat-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
-.sec-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
-.bet-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; margin-bottom: 10px; }
-.bet-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-.bet-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; margin-right: 10px; line-height: 1.4; }
+/* ── Layout shell ── */
+.shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+}
+
+.page {
+  padding: 0 16px 100px;
+  display: none;
+}
+.page.active { display: block; }
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 12px;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+.logo-o { color: var(--green); }
+.logo-u { color: var(--red); }
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.nav-btn.active { color: var(--green); }
+.nav-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-icon svg { width: 20px; height: 20px; stroke-width: 1.8; fill: none; stroke: currentColor; }
+
+/* ── Player select screen ── */
+#s-players .topbar { margin-bottom: 0; }
+.player-select-intro {
+  text-align: center;
+  padding: 28px 16px 20px;
+}
+.player-select-intro h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.player-select-intro p {
+  font-size: 15px;
+  color: var(--text-2);
+}
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 16px 24px;
+}
+.player-btn {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 8px 16px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.player-btn:active { transform: scale(0.96); background: var(--green-light); border-color: var(--green); }
+.p-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+.p-name { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* ── PIN screen ── */
+#s-pin {
+  display: none;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+}
+#s-pin.active { display: flex; }
+.pin-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 40px;
+}
+.pin-big-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.pin-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.pin-sub { font-size: 15px; color: var(--text-2); margin-bottom: 32px; text-align: center; }
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border-2);
+  background: transparent;
+  transition: all 0.15s;
+}
+.pin-dot.filled { background: var(--green); border-color: var(--green); }
+.pin-dot.error { background: var(--red); border-color: var(--red); }
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+.num-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 0;
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font);
+  color: var(--text);
+  transition: all 0.12s;
+  user-select: none;
+}
+.num-btn:active { background: var(--border); transform: scale(0.95); }
+.num-btn.del { font-size: 18px; }
+.pin-hint { font-size: 13px; color: var(--text-2); margin-top: 16px; text-align: center; }
+
+/* ── Tabs (inside dashboard) ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+.tab {
+  flex: 1;
+  padding: 9px 4px;
+  text-align: center;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.tab.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── Stat cards ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.stat {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  border: 1px solid var(--border);
+}
+.stat-label { font-size: 11px; color: var(--text-2); margin-bottom: 5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-value { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; }
+
+/* ── Section title ── */
+.sec-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+.sec-gap { margin-top: 20px; }
+
+/* ── Bet card ── */
+.bet-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.bet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.bet-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.45;
+  flex: 1;
+}
 .bet-title.blurred { filter: blur(5px); user-select: none; }
-.badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
-.badge-open { background: #E6F1FB; color: #185FA5; }
-.badge-settled { background: #EAF3DE; color: #3B6D11; }
-.line-box { display: flex; align-items: center; justify-content: space-between; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; margin: 8px 0; }
-.line-label { font-size: 12px; color: var(--color-text-secondary); }
-.line-value { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
-.line-unit { font-size: 12px; color: var(--color-text-secondary); margin-left: 3px; }
-.ou-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
-.ou-btn { padding: 10px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); font-family: var(--font-sans); transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; }
-.ou-btn-over { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
-.ou-btn-under { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
-.ou-btn-over:hover { background: #9FE1CB; }
-.ou-btn-under:hover { background: #F7C1C1; }
-.ou-btn .ou-side { font-size: 15px; font-weight: 500; }
-.ou-btn .ou-odds { font-size: 11px; opacity: 0.8; }
-.my-wager-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-top: 6px; padding-top: 8px; border-top: 0.5px solid var(--color-border-tertiary); }
-.my-wager-side-over { color: #0F6E56; font-weight: 500; }
-.my-wager-side-under { color: #A32D2D; font-weight: 500; }
-.pool-row { display: flex; gap: 12px; font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
-.pool-over { color: #0F6E56; }
-.pool-under { color: #A32D2D; }
-.subject-warning { font-size: 12px; color: #854F0B; background: #FAEEDA; padding: 7px 10px; border-radius: var(--border-radius-md); margin-bottom: 8px; }
-.btn { padding: 7px 14px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); font-family: var(--font-sans); transition: all 0.15s; }
-.btn:hover { background: var(--color-background-secondary); }
-.btn-sm { padding: 5px 10px; font-size: 12px; }
-.btn-green { background: #1D9E75; color: #E1F5EE; border-color: #1D9E75; }
-.btn-green:hover { background: #0F6E56; }
-.btn-red { background: #E24B4A; color: #FCEBEB; border-color: #E24B4A; }
-.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
-.form-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 1rem; }
-.flabel { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 5px; display: block; }
-.frow { margin-bottom: 12px; }
-input[type=text],input[type=number],select,textarea { width: 100%; padding: 8px 10px; font-size: 14px; font-family: var(--font-sans); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
-textarea { resize: vertical; min-height: 56px; }
-.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.lb-row { display: flex; align-items: center; padding: 11px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.bet-meta { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-open { background: var(--blue-light); color: var(--blue); }
+.badge-settled { background: var(--green-light); color: var(--green-dark); }
+
+/* ── Line display ── */
+.line-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.line-label { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.line-num { font-size: 20px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+.line-unit { font-size: 13px; color: var(--text-2); margin-left: 5px; }
+
+/* ── Over/Under bet buttons ── */
+.ou-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ou-btn {
+  padding: 14px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid;
+  font-family: var(--font);
+  transition: all 0.12s;
+  text-align: center;
+  user-select: none;
+}
+.ou-btn:active { transform: scale(0.96); }
+.ou-btn-over { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+.ou-btn-under { background: var(--red-light); color: var(--red-dark); border-color: var(--red-mid); }
+.ou-sub { font-size: 11px; font-weight: 400; opacity: 0.75; display: block; margin-top: 2px; }
+
+/* ── My wager pill ── */
+.my-wager-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+}
+.wager-label { color: var(--text-2); }
+.wager-over { color: var(--green-dark); font-weight: 600; }
+.wager-under { color: var(--red-dark); font-weight: 600; }
+
+.result-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-top: 8px;
+}
+.result-over { background: var(--green-light); color: var(--green-dark); }
+.result-under { background: var(--red-light); color: var(--red-dark); }
+
+.subject-warning {
+  font-size: 12px;
+  color: var(--amber);
+  background: var(--amber-light);
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.settle-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1.5px solid var(--border-2);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.settle-btn:active { background: var(--bg); }
+
+/* ── Person tabs (All lines) ── */
+.person-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.person-tab {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 20px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-2);
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 0.12s;
+  user-select: none;
+}
+.person-tab.active { color: var(--green-dark); background: var(--green-light); border-color: var(--green-mid); }
+
+/* ── Leaderboard ── */
+.lb-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.lb-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
 .lb-row:last-child { border-bottom: none; }
-.lb-rank { font-size: 13px; font-weight: 500; width: 22px; color: var(--color-text-secondary); flex-shrink: 0; }
+.lb-rank { font-size: 14px; font-weight: 600; width: 20px; flex-shrink: 0; color: var(--text-2); }
 .lb-rank.gold { color: #BA7517; }
-.lb-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; margin-right: 10px; }
+.lb-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
 .lb-info { flex: 1; }
-.lb-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
-.lb-record { font-size: 12px; color: var(--color-text-secondary); }
-.lb-pnl { font-size: 15px; font-weight: 500; }
-.pnl-pos { color: #1D9E75; }
-.pnl-neg { color: #E24B4A; }
-.pnl-blur { filter: blur(5px); }
-.wager-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.modal-wrap { background: rgba(0,0,0,0.45); min-height: 500px; display: flex; align-items: center; justify-content: center; }
-.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 20px; width: 90%; max-width: 340px; border: 0.5px solid var(--color-border-tertiary); }
-.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 10px; color: var(--color-text-primary); }
-.settle-opt { padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 8px; cursor: pointer; font-size: 14px; color: var(--color-text-primary); transition: all 0.12s; }
-.settle-opt.over { border-color: #5DCAA5; background: #E1F5EE; color: #085041; }
-.settle-opt.under { border-color: #F09595; background: #FCEBEB; color: #791F1F; }
-.settle-opt.selected.over { background: #5DCAA5; }
-.settle-opt.selected.under { background: #F09595; }
-.modal-btns { display: flex; gap: 8px; margin-top: 14px; }
-.top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-.top-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
-.empty { text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px; }
-.hint { font-size: 11px; color: var(--color-text-secondary); text-align: center; margin-top: 8px; }
+.lb-name { font-size: 15px; font-weight: 500; color: var(--text); }
+.lb-record { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.lb-pnl { font-size: 16px; font-weight: 600; font-family: var(--mono); }
+.pnl-pos { color: var(--green-dark); }
+.pnl-neg { color: var(--red); }
+.pnl-blur { filter: blur(5px); color: var(--text-2); }
+
+/* ── Create form ── */
+.form-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.form-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+.frow { margin-bottom: 14px; }
+.frow:last-child { margin-bottom: 0; }
+.flabel {
+  font-size: 13px;
+  color: var(--text-2);
+  font-weight: 500;
+  margin-bottom: 7px;
+  display: block;
+}
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: var(--font);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--green);
+}
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-box {
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+  border: 1px solid var(--border);
+}
+.info-box .over { color: var(--green-dark); font-weight: 600; }
+.info-box .under { color: var(--red-dark); font-weight: 600; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--border-2);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  transition: all 0.12s;
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn-green { background: var(--green); color: #fff; border-color: var(--green); }
+.btn-green:active { background: var(--green-dark); }
+.btn-red { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-full { width: 100%; text-align: center; }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-2);
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 15px; }
+
+/* ── Top user bar ── */
+.user-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 14px;
+}
+.user-bar-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.user-bar-name { font-size: 15px; font-weight: 500; color: var(--text); flex: 1; }
+
+/* ── Settle overlay (inline, not fixed) ── */
+.settle-overlay {
+  background: rgba(0,0,0,0.5);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.settle-sheet {
+  background: var(--card);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 20px 36px;
+  width: 100%;
+  max-width: 480px;
+}
+.settle-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-2);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.settle-sheet h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.settle-desc { font-size: 14px; color: var(--text-2); margin-bottom: 4px; }
+.settle-line { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 20px; }
+.settle-opts-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.settle-opt {
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.12s;
+  user-select: none;
+}
+.settle-opt.over { border-color: var(--green-mid); background: var(--green-light); color: var(--green-dark); }
+.settle-opt.under { border-color: var(--red-mid); background: var(--red-light); color: var(--red-dark); }
+.settle-opt.selected.over { background: var(--green-mid); }
+.settle-opt.selected.under { background: var(--red-mid); }
+.settle-btns { display: flex; gap: 10px; margin-top: 16px; }
+
+/* ── Hint ── */
+.hint { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px; }
+
+/* ── Wager amount prompt ── */
+.wager-prompt {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.wager-prompt-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+.wager-side-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.wager-side-over { background: var(--green-light); color: var(--green-dark); }
+.wager-side-under { background: var(--red-light); color: var(--red-dark); }
+
+/* ── Bulk import ── */
+.bulk-hint {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+@media (min-width: 480px) {
+  .shell { box-shadow: 0 0 40px rgba(0,0,0,0.08); }
+  .bottom-nav { border-radius: 0; }
+}
 </style>
+</head>
+<body>
+<div class="shell">
 
-<div class="app" id="app">
-
+<!-- ═══ PLAYER SELECT ═══ -->
 <div id="s-players">
-  <div class="header">
-    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+  <div class="topbar">
+    <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
   </div>
-  <div style="text-align:center;margin-bottom:1.25rem;">
-    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">Who are you?</div>
-    <div style="font-size:13px;color:var(--color-text-secondary);">Select your name to enter your dashboard</div>
+  <div class="player-select-intro">
+    <h1>Who are you?</h1>
+    <p>Tap your name to enter your dashboard</p>
   </div>
   <div class="player-grid" id="player-grid"></div>
 </div>
 
-<div id="s-pin" style="display:none">
-  <div class="header">
-    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+<!-- ═══ PIN SCREEN ═══ -->
+<div id="s-pin">
+  <div class="topbar">
+    <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
     <button class="btn btn-sm" onclick="goBack()">Back</button>
   </div>
-  <div class="pin-wrap">
+  <div class="pin-page">
     <div class="pin-big-avatar" id="pin-av"></div>
     <div class="pin-title" id="pin-title">Enter your PIN</div>
     <div class="pin-sub" id="pin-sub">Keep your bets secret</div>
@@ -156,55 +694,110 @@ textarea { resize: vertical; min-height: 56px; }
       <button class="num-btn" onclick="np('9')">9</button>
       <div></div>
       <button class="num-btn" onclick="np('0')">0</button>
-      <button class="num-btn" onclick="nd()">⌫</button>
+      <button class="num-btn del" onclick="nd()">⌫</button>
     </div>
-    <div class="hint" id="pin-hint"></div>
+    <div class="pin-hint" id="pin-hint"></div>
   </div>
 </div>
 
+<!-- ═══ MAIN DASHBOARD ═══ -->
 <div id="s-main" style="display:none">
-  <div class="header">
-    <div class="logo"><span class="logo-over">Over</span><span class="logo-under">Under</span></div>
+  <div class="topbar">
+    <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
     <button class="btn btn-sm" onclick="logout()">Lock</button>
   </div>
-  <div class="top-bar">
+  <div class="user-bar">
     <div id="main-av"></div>
-    <div class="top-name" id="main-name"></div>
-    <button class="btn btn-sm btn-green" onclick="dt('create')">+ New line</button>
+    <div class="user-bar-name" id="main-name"></div>
   </div>
-  <div class="tabs">
-    <button class="tab active" id="dtab-my" onclick="dt('my')">My bets</button>
-    <button class="tab" id="dtab-all" onclick="dt('all')">All lines</button>
-    <button class="tab" id="dtab-lb" onclick="dt('lb')">Standings</button>
-    <button class="tab" id="dtab-create" onclick="dt('create')">+ New</button>
+
+  <!-- My bets -->
+  <div class="page active" id="p-my">
+    <div class="tabs">
+      <button class="tab active" id="dtab-my" onclick="dt('my')">My bets</button>
+      <button class="tab" id="dtab-all" onclick="dt('all')">All lines</button>
+      <button class="tab" id="dtab-lb" onclick="dt('lb')">Standings</button>
+      <button class="tab" id="dtab-create" onclick="dt('create')">+ New</button>
+    </div>
+    <div id="d-my"></div>
   </div>
-  <div id="d-my"></div>
-  <div id="d-all" style="display:none"></div>
-  <div id="d-lb" style="display:none"></div>
-  <div id="d-create" style="display:none"></div>
+
+  <!-- All lines -->
+  <div class="page" id="p-all">
+    <div class="tabs">
+      <button class="tab" id="dtab2-my" onclick="dt('my')">My bets</button>
+      <button class="tab active" id="dtab2-all" onclick="dt('all')">All lines</button>
+      <button class="tab" id="dtab2-lb" onclick="dt('lb')">Standings</button>
+      <button class="tab" id="dtab2-create" onclick="dt('create')">+ New</button>
+    </div>
+    <div id="d-all"></div>
+  </div>
+
+  <!-- Standings -->
+  <div class="page" id="p-lb">
+    <div class="tabs">
+      <button class="tab" id="dtab3-my" onclick="dt('my')">My bets</button>
+      <button class="tab" id="dtab3-all" onclick="dt('all')">All lines</button>
+      <button class="tab active" id="dtab3-lb" onclick="dt('lb')">Standings</button>
+      <button class="tab" id="dtab3-create" onclick="dt('create')">+ New</button>
+    </div>
+    <div id="d-lb"></div>
+  </div>
+
+  <!-- Create -->
+  <div class="page" id="p-create">
+    <div class="tabs">
+      <button class="tab" id="dtab4-my" onclick="dt('my')">My bets</button>
+      <button class="tab" id="dtab4-all" onclick="dt('all')">All lines</button>
+      <button class="tab" id="dtab4-lb" onclick="dt('lb')">Standings</button>
+      <button class="tab active" id="dtab4-create" onclick="dt('create')">+ New</button>
+    </div>
+    <div id="d-create"></div>
+  </div>
 </div>
 
+<!-- ═══ SETTLE SCREEN ═══ -->
 <div id="s-settle" style="display:none">
-  <div class="modal-wrap">
-    <div class="modal">
+  <div class="settle-overlay">
+    <div class="settle-sheet">
+      <div class="settle-handle"></div>
       <h3>Settle line</h3>
-      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:4px;" id="settle-desc"></div>
-      <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;" id="settle-line-disp"></div>
-      <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;">What was the actual result?</div>
+      <div class="settle-desc" id="settle-desc"></div>
+      <div class="settle-line" id="settle-line-disp"></div>
+      <div class="settle-opts-label">What was the actual result?</div>
       <div id="settle-opts"></div>
-      <div class="modal-btns">
-        <button class="btn" style="flex:1" onclick="closeSettle()">Cancel</button>
-        <button class="btn btn-green" style="flex:1" onclick="confirmSettle()">Confirm</button>
+      <div class="settle-btns">
+        <button class="btn btn-full" style="flex:1" onclick="closeSettle()">Cancel</button>
+        <button class="btn btn-green btn-full" style="flex:1" onclick="confirmSettle()">Confirm</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ═══ WAGER PROMPT SCREEN ═══ -->
+<div id="s-wager" style="display:none">
+  <div class="topbar">
+    <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
+    <button class="btn btn-sm" onclick="closeWager()">Cancel</button>
+  </div>
+  <div style="padding: 0 16px;">
+    <div style="margin-bottom: 20px;">
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:6px;" id="wager-bet-title"></div>
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:16px;" id="wager-line-info"></div>
+      <div id="wager-side-pill"></div>
+    </div>
+    <div class="form-section">
+      <div class="frow">
+        <label class="flabel">Your wager amount (max €5)</label>
+        <input type="number" id="wager-amt" placeholder="e.g. 3" min="1" max="5" step="1" inputmode="numeric">
+      </div>
+      <button class="btn btn-green btn-full" onclick="confirmWager()">Confirm wager</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const CONFIG = {
-  // Fill these in to make the app load/save shared data through JSONBin.
   jsonBinId: '69c2608eaa77b81da9141e35',
   apiKey: '$2a$10$TjKftwh/7DpLfmx2r2ccj.okpkVZTpdNqZh7WycR9dB6ssH1nQF9K',
   accessKey: '',
@@ -222,9 +815,8 @@ const PLAYERS = [
 const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
-  allFilter: null,
-  saving: false,
-  nextId: 4,
+  allFilter: null, saving: false, nextId: 4,
+  pendingWager: null,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
      unit:"complaints", line:2.5, status:"open", result:null,
@@ -238,75 +830,33 @@ const S = {
   ]
 };
 
+/* ── helpers ── */
 function pc(name){ return PLAYERS.find(p=>p.name===name)||{bg:'#F1EFE8',fg:'#5F5E5A'}; }
-function av(name,sz=44,fs=15,ml=0){
+function av(name,sz=44,fs=16){
   const c=pc(name);
-  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:500;flex-shrink:0;${ml?'margin-left:'+ml+'px':''}">${name.slice(0,2).toUpperCase()}</div>`;
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:600;flex-shrink:0">${name.slice(0,2).toUpperCase()}</div>`;
 }
 
-function hasRemoteStorage(){
-  return Boolean(CONFIG.jsonBinId && CONFIG.apiKey);
+/* ── remote storage ── */
+function hasRemote(){ return Boolean(CONFIG.jsonBinId && CONFIG.apiKey); }
+function hdrs(){ const h={'Content-Type':'application/json','X-Master-Key':CONFIG.apiKey}; if(CONFIG.accessKey)h['X-Access-Key']=CONFIG.accessKey; return h; }
+function exportState(){ return {pins:S.pins, nextId:S.nextId, bets:S.bets}; }
+function applyState(data){ if(!data||typeof data!=='object')return; if(data.pins)S.pins=data.pins; if(Array.isArray(data.bets))S.bets=data.bets; if(typeof data.nextId==='number')S.nextId=data.nextId; }
+async function loadRemote(){ if(!hasRemote())return; try{ const r=await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`,{headers:hdrs()}); if(!r.ok)throw new Error(); const d=await r.json(); applyState(d.record||d); }catch(e){ console.error(e); } }
+async function saveRemote(){ if(!hasRemote()||S.saving)return; S.saving=true; try{ await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(exportState())}); }catch(e){ console.error(e); }finally{ S.saving=false; } }
+
+/* ── screen switching ── */
+const SCREENS = ['s-players','s-pin','s-main','s-settle','s-wager'];
+function show(id){
+  SCREENS.forEach(s=>{
+    const el=document.getElementById(s);
+    if(!el) return;
+    el.style.display=s===id?'block':'none';
+    if(s==='s-pin') el.classList.toggle('active',s===id);
+  });
 }
 
-function storageHeaders(){
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-Master-Key': CONFIG.apiKey,
-  };
-  if(CONFIG.accessKey) headers['X-Access-Key'] = CONFIG.accessKey;
-  return headers;
-}
-
-function exportState(){
-  return {
-    pins: S.pins,
-    nextId: S.nextId,
-    bets: S.bets,
-  };
-}
-
-function applyLoadedState(data){
-  if(!data || typeof data !== 'object') return;
-  if(data.pins && typeof data.pins === 'object') S.pins = data.pins;
-  if(Array.isArray(data.bets)) S.bets = data.bets;
-  if(typeof data.nextId === 'number') S.nextId = data.nextId;
-}
-
-async function loadRemoteState(){
-  if(!hasRemoteStorage()) return;
-  try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`, {
-      headers: storageHeaders(),
-    });
-    if(!res.ok) throw new Error(`Load failed: ${res.status}`);
-    const payload = await res.json();
-    applyLoadedState(payload.record || payload);
-  } catch (err) {
-    console.error(err);
-    alert('Could not load shared data from JSONBin. The page will keep using the local demo data.');
-  }
-}
-
-async function saveRemoteState(){
-  if(!hasRemoteStorage() || S.saving) return;
-  S.saving = true;
-  try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}`, {
-      method: 'PUT',
-      headers: storageHeaders(),
-      body: JSON.stringify(exportState()),
-    });
-    if(!res.ok) throw new Error(`Save failed: ${res.status}`);
-  } catch (err) {
-    console.error(err);
-    alert('Could not save shared data to JSONBin.');
-  } finally {
-    S.saving = false;
-  }
-}
-
-function show(id){ ['s-players','s-pin','s-main','s-settle'].forEach(s=>document.getElementById(s).style.display=s===id?'block':'none'); }
-
+/* ── player select ── */
 function renderPlayers(){
   document.getElementById('player-grid').innerHTML=PLAYERS.map(p=>`
     <button class="player-btn" onclick="selPlayer('${p.name}')">
@@ -315,47 +865,48 @@ function renderPlayers(){
     </button>`).join('');
 }
 
+/* ── PIN flow ── */
 function selPlayer(name){
-  S.current=name; S.buf=''; S.confirmBuf='';
-  S.allFilter = null;
-  document.getElementById('pin-av').innerHTML=av(name,56,20);
-  if(S.pins[name]){ document.getElementById('pin-title').textContent=`Hey ${name}!`; document.getElementById('pin-sub').textContent='Enter your PIN'; S.pinMode='enter'; }
+  S.current=name; S.buf=''; S.confirmBuf=''; S.allFilter=null;
+  document.getElementById('pin-av').innerHTML=`<div class="pin-big-avatar" style="background:${pc(name).bg};color:${pc(name).fg}">${name.slice(0,2).toUpperCase()}</div>`;
+  if(S.pins[name]){ document.getElementById('pin-title').textContent=`Hey ${name}!`; document.getElementById('pin-sub').textContent='Enter your PIN to continue'; S.pinMode='enter'; }
   else { document.getElementById('pin-title').textContent='Set your PIN'; document.getElementById('pin-sub').textContent='Choose a 4-digit PIN — keep it secret!'; S.pinMode='set'; }
   document.getElementById('pin-hint').textContent='';
-  updDots(); show('s-pin');
+  updDots();
+  document.getElementById('s-players').style.display='none';
+  document.getElementById('s-pin').style.display='flex';
+  document.getElementById('s-pin').classList.add('active');
 }
 
 function np(d){ if(S.buf.length>=4)return; S.buf+=d; updDots(); if(S.buf.length===4)setTimeout(checkPin,180); }
 function nd(){ S.buf=S.buf.slice(0,-1); updDots(); }
-function updDots(err=false){
-  document.querySelectorAll('.pin-dot').forEach((d,i)=>{
-    d.classList.toggle('filled',i<S.buf.length&&!err);
-    d.classList.toggle('error',err);
-  });
-}
+function updDots(err=false){ document.querySelectorAll('.pin-dot').forEach((d,i)=>{ d.classList.toggle('filled',i<S.buf.length&&!err); d.classList.toggle('error',err); }); }
 function checkPin(){
   const name=S.current;
   if(S.pinMode==='set'){
     if(!S.confirmBuf){ S.confirmBuf=S.buf; S.buf=''; document.getElementById('pin-sub').textContent='Confirm your PIN'; updDots(); return; }
-    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; saveRemoteState(); enterDash(); }
-    else{ updDots(true); setTimeout(()=>{ S.buf=''; S.confirmBuf=''; updDots(); document.getElementById('pin-sub').textContent='PINs didn\'t match — try again'; },600); }
+    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; saveRemote(); enterDash(); }
+    else{ updDots(true); setTimeout(()=>{ S.buf=''; S.confirmBuf=''; updDots(); document.getElementById('pin-sub').textContent="PINs didn't match — try again"; },600); }
   } else {
     if(S.buf===S.pins[name]){ enterDash(); }
     else{ updDots(true); setTimeout(()=>{ S.buf=''; updDots(); },600); }
   }
 }
 function enterDash(){
-  document.getElementById('main-av').innerHTML=av(S.current,32,12);
+  document.getElementById('main-av').innerHTML=av(S.current,36,13);
   document.getElementById('main-name').textContent=S.current;
+  document.getElementById('s-pin').style.display='none';
+  document.getElementById('s-pin').classList.remove('active');
   show('s-main'); dt('my');
 }
 function logout(){ S.current=null; S.buf=''; show('s-players'); }
-function goBack(){ S.buf=''; S.confirmBuf=''; show('s-players'); }
+function goBack(){ S.buf=''; S.confirmBuf=''; document.getElementById('s-pin').style.display='none'; document.getElementById('s-pin').classList.remove('active'); document.getElementById('s-players').style.display='block'; }
 
+/* ── tab routing ── */
 function dt(tab){
   ['my','all','lb','create'].forEach(t=>{
-    document.getElementById('d-'+t).style.display=t===tab?'block':'none';
-    const el=document.getElementById('dtab-'+t); if(el) el.classList.toggle('active',t===tab);
+    const pg=document.getElementById('p-'+t); if(pg) pg.classList.toggle('active',t===tab);
+    [1,2,3,4].forEach(n=>{ const el=document.getElementById(`dtab${n>1?n:''}-${t}`); if(el) el.classList.toggle('active',t===tab); });
   });
   if(tab==='my') renderMy();
   if(tab==='all') renderAll();
@@ -363,49 +914,61 @@ function dt(tab){
   if(tab==='create') renderCreate();
 }
 
+/* ── bet card ── */
+function betCardHtml(b, me){
+  const isSubject=b.subject===me;
+  const myWager=b.wagers.find(w=>w.person===me);
+  const overPool=b.wagers.filter(w=>w.side==='over').reduce((s,w)=>s+w.amount,0);
+  const underPool=b.wagers.filter(w=>w.side==='under').reduce((s,w)=>s+w.amount,0);
+  const badge=b.status==='open'?'<span class="badge badge-open">Open</span>':'<span class="badge badge-settled">Settled</span>';
+  const titleClass=isSubject?'bet-title blurred':'bet-title';
+  const titleText=isSubject?'?????? ????? ??? ???':b.desc;
+  const subjWarn=isSubject?`<div class="subject-warning">You are the subject — description hidden</div>`:'';
+  const lineDisplay=isSubject
+    ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:20px;font-weight:600;font-family:var(--mono)">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
+    : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-num">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
 
-function betCardHtml(b, me, isPublic){
-  const isSubject = b.subject===me;
-  const myWager = b.wagers.find(w=>w.person===me);
-  const statusBadge = b.status==='open'?'<span class="badge badge-open">Open</span>':'<span class="badge badge-settled">Settled</span>';
-  const titleClass = isSubject?'bet-title blurred':'bet-title';
-  const titleText = isSubject?'?????? ????? ??? ???':b.desc;
-  const subjectWarn = isSubject?`<div class="subject-warning">You are the subject — description hidden</div>`:'';
-  const lineDisplay = isSubject
-    ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:18px;font-weight:500">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
-    : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-value">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
-
-  let wagerRow='', settleRow='', resultRow='', actionRow='';
+  let actionHtml='', wagerHtml='', resultHtml='', settleHtml='';
 
   if(myWager){
-    const sideClass=myWager.side==='over'?'my-wager-side-over':'my-wager-side-under';
-    wagerRow=`<div class="my-wager-row"><span class="line-label">My pick</span><span class="${sideClass}">${myWager.side.toUpperCase()}</span></div>`;
+    const cls=myWager.side==='over'?'wager-over':'wager-under';
+    wagerHtml=`<div class="my-wager-row"><span class="wager-label">My pick</span><span class="${cls}">${myWager.side.toUpperCase()} · €${myWager.amount}</span></div>`;
   } else if(b.status==='open'&&!isSubject){
-    actionRow=`<div class="ou-btns">
-      <button class="ou-btn ou-btn-over" onclick="placeWager(${b.id},'over')"><span class="ou-side">OVER</span><span class="ou-odds">Bet</span></button>
-      <button class="ou-btn ou-btn-under" onclick="placeWager(${b.id},'under')"><span class="ou-side">UNDER</span><span class="ou-odds">Bet</span></button>
+    actionHtml=`<div class="ou-btns">
+      <button class="ou-btn ou-btn-over" onclick="startWager(${b.id},'over')">OVER<span class="ou-sub">bet it happens</span></button>
+      <button class="ou-btn ou-btn-under" onclick="startWager(${b.id},'under')">UNDER<span class="ou-sub">bet it doesn't</span></button>
     </div>`;
   }
 
   if(b.status==='settled'&&!isSubject){
-    const rc=b.result==='over'?'#0F6E56':'#A32D2D';
-    const rbg=b.result==='over'?'#E1F5EE':'#FCEBEB';
-    resultRow=`<div style="margin-top:8px"><span style="font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:${rbg};color:${rc}">Result: ${b.result.toUpperCase()}</span></div>`;
+    const cls=b.result==='over'?'result-over':'result-under';
+    resultHtml=`<span class="result-pill ${cls}">Result: ${b.result.toUpperCase()}</span>`;
   }
 
   if(b.status==='open'&&!isSubject){
-    settleRow=`<div style="margin-top:8px"><button class="btn btn-sm" onclick="openSettle(${b.id})">Settle</button></div>`;
+    settleHtml=`<button class="settle-btn" onclick="openSettle(${b.id})">Settle this line</button>`;
+  }
+
+  let poolLine='';
+  if(!isSubject){
+    poolLine=`<div style="display:flex;gap:14px;font-size:13px;margin-top:2px;margin-bottom:8px;">
+      <span style="color:var(--green-dark);font-weight:500">OVER €${overPool}</span>
+      <span style="color:var(--text-3)">|</span>
+      <span style="color:var(--red-dark);font-weight:500">UNDER €${underPool}</span>
+    </div>`;
   }
 
   return `<div class="bet-card">
-    ${subjectWarn}
-    <div class="bet-head"><div class="${titleClass}">${titleText}</div>${statusBadge}</div>
-    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;">Subject: ${isSubject?'<b>you</b>':b.subject} · ${b.cat||'General'}</div>
+    ${subjWarn}
+    <div class="bet-head"><div class="${titleClass}">${titleText}</div>${badge}</div>
+    <div class="bet-meta">Subject: ${isSubject?'<strong>you</strong>':b.subject} · ${b.cat||'General'}</div>
     ${lineDisplay}
-    ${actionRow}${wagerRow}${resultRow}${settleRow}
+    ${poolLine}
+    ${actionHtml}${wagerHtml}${resultHtml}${settleHtml}
   </div>`;
 }
 
+/* ── My bets ── */
 function renderMy(){
   const me=S.current;
   const mine=S.bets.filter(b=>b.wagers.find(w=>w.person===me));
@@ -413,112 +976,120 @@ function renderMy(){
   const settled=mine.filter(b=>b.status==='settled');
   const myStake=open.reduce((s,b)=>s+(b.wagers.find(w=>w.person===me)?.amount||0),0);
   const pnl=calcPnl(me);
-  const pnlColor=pnl>=0?'#1D9E75':'#E24B4A';
+  const pnlColor=pnl>=0?'var(--green-dark)':'var(--red)';
   let html=`<div class="stats-grid">
-    <div class="stat"><div class="stat-label">Open bets</div><div class="stat-value">${open.length}</div></div>
+    <div class="stat"><div class="stat-label">Open</div><div class="stat-value">${open.length}</div></div>
     <div class="stat"><div class="stat-label">At stake</div><div class="stat-value">€${myStake}</div></div>
     <div class="stat"><div class="stat-label">P&L</div><div class="stat-value" style="color:${pnlColor}">${pnl>=0?'+':''}€${Math.abs(pnl).toFixed(2)}</div></div>
   </div>`;
-  if(open.length){ html+=`<div class="sec-title">Open</div>`+open.map(b=>betCardHtml(b,me,false)).join(''); }
-  if(settled.length){ html+=`<div class="sec-title" style="margin-top:1rem">Settled</div>`+settled.map(b=>betCardHtml(b,me,false)).join(''); }
-  if(!mine.length) html+=`<div class="empty">No bets yet — create a new line!</div>`;
+  if(open.length){ html+=`<div class="sec-title">Open bets</div>`+open.map(b=>betCardHtml(b,me)).join(''); }
+  if(settled.length){ html+=`<div class="sec-title sec-gap">Settled</div>`+settled.map(b=>betCardHtml(b,me)).join(''); }
+  if(!mine.length) html+=`<div class="empty"><div class="empty-icon">🎲</div><div class="empty-text">No bets yet — post a new line!</div></div>`;
   document.getElementById('d-my').innerHTML=html;
 }
 
+/* ── All lines ── */
 function renderAll(){
   const me=S.current;
   const others=PLAYERS.filter(p=>p.name!==me);
-  if(!S.allFilter || S.allFilter===me) S.allFilter = others[0]?.name || null;
+  if(!S.allFilter||S.allFilter===me) S.allFilter=others[0]?.name||null;
   const filtered=S.bets.filter(b=>b.subject===S.allFilter);
   const open=filtered.filter(b=>b.status==='open');
   const settled=filtered.filter(b=>b.status==='settled');
-  const tabHtml=others.map(p=>`<button class="person-tab ${p.name===S.allFilter?'active':''}" onclick="setAllFilter('${p.name}')">${p.name}</button>`).join('');
-  let html=`<div class="stats-grid">
-    <div class="stat"><div class="stat-label">Selected player</div><div class="stat-value" style="font-size:17px">${S.allFilter||'-'}</div></div>
-    <div class="stat"><div class="stat-label">Open lines</div><div class="stat-value">${open.length}</div></div>
-    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:#1D9E75">${settled.length}</div></div>
-  </div>`;
+  const tabHtml=others.map(p=>`<button class="person-tab${p.name===S.allFilter?' active':''}" onclick="setAllFilter('${p.name}')">${p.name}</button>`).join('');
+  let html=`<div style="margin-bottom:14px;font-size:13px;color:var(--text-2);">Tap a player to see bets placed about them</div>`;
   html+=`<div class="person-tabs">${tabHtml}</div>`;
-  if(open.length){ html+=`<div class="sec-title">Open lines</div>`+open.map(b=>betCardHtml(b,me,true)).join(''); }
-  if(settled.length){ html+=`<div class="sec-title" style="margin-top:1rem">Settled</div>`+settled.map(b=>betCardHtml(b,me,true)).join(''); }
-  if(!filtered.length) html+=`<div class="empty">No lines posted for ${S.allFilter} yet.</div>`;
+  html+=`<div class="stats-grid">
+    <div class="stat"><div class="stat-label">Player</div><div class="stat-value" style="font-size:16px">${S.allFilter||'—'}</div></div>
+    <div class="stat"><div class="stat-label">Open</div><div class="stat-value">${open.length}</div></div>
+    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:var(--green)">${settled.length}</div></div>
+  </div>`;
+  if(open.length){ html+=`<div class="sec-title">Open lines</div>`+open.map(b=>betCardHtml(b,me)).join(''); }
+  if(settled.length){ html+=`<div class="sec-title sec-gap">Settled</div>`+settled.map(b=>betCardHtml(b,me)).join(''); }
+  if(!filtered.length) html+=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No lines posted for ${S.allFilter} yet</div></div>`;
   document.getElementById('d-all').innerHTML=html;
 }
+function setAllFilter(name){ S.allFilter=name; renderAll(); }
 
-function setAllFilter(name){
-  S.allFilter=name;
-  renderAll();
-}
-
+/* ── Standings ── */
 function renderLb(){
   const me=S.current;
   const sorted=[...PLAYERS].sort((a,b)=>calcPnl(b.name)-calcPnl(a.name));
+  const openCount=S.bets.filter(b=>b.status==='open').length;
+  const settledCount=S.bets.filter(b=>b.status==='settled').length;
   let html=`<div class="stats-grid">
     <div class="stat"><div class="stat-label">Players</div><div class="stat-value">${PLAYERS.length}</div></div>
-    <div class="stat"><div class="stat-label">Open lines</div><div class="stat-value">${S.bets.filter(b=>b.status==='open').length}</div></div>
-    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:#1D9E75">${S.bets.filter(b=>b.status==='settled').length}</div></div>
+    <div class="stat"><div class="stat-label">Open</div><div class="stat-value">${openCount}</div></div>
+    <div class="stat"><div class="stat-label">Settled</div><div class="stat-value" style="color:var(--green)">${settledCount}</div></div>
   </div>
-  <div class="form-card">`;
+  <div class="lb-card">`;
   html+=sorted.map((p,i)=>{
     const pnl=calcPnl(p.name);
     const isMe=p.name===me;
     const pnlStr=(pnl>=0?'+':'')+'€'+Math.abs(pnl).toFixed(2);
     const pnlCls=isMe?(pnl>=0?'lb-pnl pnl-pos':'lb-pnl pnl-neg'):'lb-pnl pnl-blur';
-    const w=wins(p.name), l=losses(p.name);
+    const w=wins(p.name),l=losses(p.name);
+    const c=pc(p.name);
     return `<div class="lb-row">
-      <div class="lb-rank ${i===0?'gold':''}">${i===0?'★':(i+1)}</div>
-      ${av(p.name,32,12,0).replace('flex-shrink:0','flex-shrink:0').replace('</div>','</div>').replace('<div style="','<div class="lb-avatar" style="')}
-      <div class="lb-info"><div class="lb-name">${p.name}${isMe?' (you)':''}</div><div class="lb-record">${w}W · ${l}L</div></div>
+      <div class="lb-rank${i===0?' gold':''}">${i===0?'★':(i+1)}</div>
+      <div class="lb-avatar" style="background:${c.bg};color:${c.fg}">${p.name.slice(0,2).toUpperCase()}</div>
+      <div class="lb-info">
+        <div class="lb-name">${p.name}${isMe?' <span style="font-size:12px;color:var(--text-2)">(you)</span>':''}</div>
+        <div class="lb-record">${w}W · ${l}L</div>
+      </div>
       <div class="${pnlCls}">${pnlStr}</div>
     </div>`;
   }).join('');
-  html+=`</div><div class="hint">Other players' P&L amounts are hidden</div>`;
+  html+=`</div><div class="hint">Other players' earnings are hidden until the trip ends</div>`;
   document.getElementById('d-lb').innerHTML=html;
 }
 
+/* ── Create ── */
 function renderCreate(){
   const me=S.current;
   const others=PLAYERS.filter(p=>p.name!==me);
-  document.getElementById('d-create').innerHTML=`<div class="form-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);">Manage lines</div>
-      <button class="btn btn-sm btn-red" onclick="clearAllLines()">Clear all lines</button>
+  document.getElementById('d-create').innerHTML=`
+    <div class="form-section">
+      <div class="form-section-title">Post a new line</div>
+      <div class="frow"><label class="flabel">What are we betting on?</label>
+        <textarea id="f-desc" placeholder="e.g. Times Thom checks his phone during dinner"></textarea></div>
+      <div class="fgrid">
+        <div class="frow"><label class="flabel">Subject</label>
+          <select id="f-subj"><option value="">Select...</option>${others.map(p=>`<option>${p.name}</option>`).join('')}</select></div>
+        <div class="frow"><label class="flabel">Category</label>
+          <select id="f-cat"><option>Food & drink</option><option>Activities</option><option>Sleep</option><option>Social</option><option>Navigation</option><option>Other</option></select></div>
+      </div>
+      <div class="fgrid">
+        <div class="frow"><label class="flabel">The line</label>
+          <input type="number" id="f-line" placeholder="e.g. 3.5" step="0.5" min="0" inputmode="decimal"></div>
+        <div class="frow"><label class="flabel">Unit</label>
+          <input type="text" id="f-unit" placeholder="times, hours..."></div>
+      </div>
+      <div class="info-box" style="margin-bottom:14px">
+        Bettors pick <span class="over">OVER</span> (exceeds the line) or <span class="under">UNDER</span> (stays below). Winners split the losers' pool proportionally.
+      </div>
+      <div class="divider"></div>
+      <div class="form-section-title">Your wager</div>
+      <div class="fgrid">
+        <div class="frow"><label class="flabel">Your side</label>
+          <select id="f-side"><option value="over">OVER</option><option value="under">UNDER</option></select></div>
+        <div class="frow"><label class="flabel">Amount (max €5)</label>
+          <input type="number" id="f-amt" placeholder="€0" min="1" max="5" inputmode="numeric"></div>
+      </div>
+      <button class="btn btn-green btn-full" onclick="createBet()">Post line</button>
     </div>
-    <div class="frow"><label class="flabel">Bulk add lines</label>
-      <textarea id="f-bulk" placeholder="Times Chris orders dessert | Chris | 2.5 | times | Food & drink&#10;Minutes Thom is late | Thom | 10 | minutes | Social"></textarea></div>
-    <div class="hint" style="margin-top:0;margin-bottom:10px;">Paste one line per row in this format: description | subject | line | unit | category</div>
-    <button class="btn" style="width:100%;margin-bottom:12px;" onclick="bulkCreateBets()">Import pasted lines</button>
-    <div class="divider"></div>
-    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;">Add a single line</div>
-    <div class="frow"><label class="flabel">What are we betting on?</label>
-      <textarea id="f-desc" placeholder="e.g. Times Thom checks his phone during dinner"></textarea></div>
-    <div class="fgrid">
-      <div class="frow"><label class="flabel">Subject (can't see the line)</label>
-        <select id="f-subj"><option value="">Select...</option>${others.map(p=>`<option>${p.name}</option>`).join('')}</select></div>
-      <div class="frow"><label class="flabel">Category</label>
-        <select id="f-cat"><option>Food & drink</option><option>Activities</option><option>Sleep</option><option>Social</option><option>Navigation</option><option>Other</option></select></div>
+
+    <div class="form-section">
+      <div class="form-section-title">Bulk import</div>
+      <div class="bulk-hint">Paste one line per row:<br><strong>description | subject | line | unit | category</strong></div>
+      <div class="frow"><textarea id="f-bulk" placeholder="Times Chris orders dessert | Chris | 2.5 | times | Food & drink&#10;Minutes Thom is late | Thom | 10 | minutes | Social"></textarea></div>
+      <button class="btn btn-full" style="margin-bottom:10px" onclick="bulkCreateBets()">Import lines</button>
     </div>
-    <div class="divider"></div>
-    <div class="fgrid">
-      <div class="frow"><label class="flabel">The line</label>
-        <input type="number" id="f-line" placeholder="e.g. 3.5" step="0.5" min="0"></div>
-      <div class="frow"><label class="flabel">Unit</label>
-        <input type="text" id="f-unit" placeholder="e.g. times, hours, drinks"></div>
-    </div>
-    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">
-      Bettors pick <span style="color:#0F6E56;font-weight:500">OVER</span> (will exceed the line) or <span style="color:#A32D2D;font-weight:500">UNDER</span> (will stay below). Winners split the losers' pool proportionally.
-    </div>
-    <div class="divider"></div>
-    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;">Your wager</div>
-    <div class="fgrid">
-      <div class="frow"><label class="flabel">Your side</label>
-        <select id="f-side"><option value="over">OVER</option><option value="under">UNDER</option></select></div>
-      <div class="frow"><label class="flabel">Amount (€)</label>
-        <input type="number" id="f-amt" placeholder="€0" min="1" max="5"></div>
-    </div>
-    <div class="hint" style="margin-top:0;margin-bottom:10px;">Maximum stake per bet: €5</div>
-    <button class="btn btn-green" style="width:100%;margin-top:4px;" onclick="createBet()">Post line</button>
-  </div>`;
+
+    <div class="form-section">
+      <div class="form-section-title" style="color:var(--red)">Danger zone</div>
+      <button class="btn btn-red btn-full" onclick="clearAllLines()">Clear all lines</button>
+    </div>`;
 }
 
 function createBet(){
@@ -535,75 +1106,58 @@ function createBet(){
   if(isNaN(amt)||amt<=0){alert('Set your wager amount');return;}
   if(amt>5){alert('Maximum bet is €5');return;}
   S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,wagers:[{person:S.current,amount:amt,side}]});
-  saveRemoteState();
-  dt('my');
+  saveRemote(); dt('my');
 }
 
-function placeWager(id, side){
+/* ── Wager flow (native screen instead of prompt) ── */
+function startWager(id, side){
   const b=S.bets.find(x=>x.id===id);
-  if(!b || b.status!=='open') return;
-  if(b.subject===S.current){ alert('You cannot bet on a line about yourself'); return; }
-  if(b.wagers.find(w=>w.person===S.current)){ alert('You already placed a bet on this line'); return; }
-
-  const raw=prompt(`How much do you want to bet on ${side.toUpperCase()}? Max 5`);
-  if(raw===null) return;
-  const amount=parseFloat(String(raw).replace(',', '.'));
-  if(isNaN(amount) || amount<=0){ alert('Enter a valid amount'); return; }
-  if(amount>5){ alert('Maximum bet is â‚¬5'); return; }
-
-  b.wagers.push({ person:S.current, amount, side });
-  saveRemoteState();
-  dt('my');
+  if(!b||b.status!=='open')return;
+  if(b.subject===S.current){alert('You cannot bet on a line about yourself');return;}
+  if(b.wagers.find(w=>w.person===S.current)){alert('You already placed a bet on this line');return;}
+  S.pendingWager={id, side};
+  document.getElementById('wager-bet-title').textContent=b.desc;
+  document.getElementById('wager-line-info').textContent=`Line: ${b.line} ${b.unit}`;
+  document.getElementById('wager-side-pill').innerHTML=`<span class="wager-side-indicator wager-side-${side}">${side.toUpperCase()}</span>`;
+  document.getElementById('wager-amt').value='';
+  show('s-wager');
 }
-
-function clearAllLines(){
-  if(!confirm('Delete all current lines? This cannot be undone.')) return;
-  S.bets = [];
-  S.nextId = 1;
-  saveRemoteState();
-  dt('create');
+function closeWager(){ show('s-main'); dt('my'); }
+function confirmWager(){
+  const amt=parseFloat(document.getElementById('wager-amt').value);
+  if(isNaN(amt)||amt<=0){alert('Enter a valid amount');return;}
+  if(amt>5){alert('Maximum bet is €5');return;}
+  const {id,side}=S.pendingWager;
+  S.bets.find(x=>x.id===id).wagers.push({person:S.current,amount:amt,side});
+  S.pendingWager=null;
+  saveRemote(); show('s-main'); dt('my');
 }
 
 function bulkCreateBets(){
   const raw=document.getElementById('f-bulk').value.trim();
   if(!raw){alert('Paste at least one line');return;}
-  const names = new Set(PLAYERS.map(p=>p.name));
+  const names=new Set(PLAYERS.map(p=>p.name));
   const rows=raw.split('\n').map(r=>r.trim()).filter(Boolean);
   const parsed=[];
-
   for(const row of rows){
     const parts=row.split('|').map(p=>p.trim());
-    if(parts.length < 4){
-      alert(`Could not import this row:\n${row}\n\nUse: description | subject | line | unit | category`);
-      return;
-    }
-    const [desc, subject, lineRaw, unit, categoryRaw] = parts;
+    if(parts.length<4){alert(`Bad row:\n${row}`);return;}
+    const [desc,subject,lineRaw,unit,categoryRaw]=parts;
     const line=parseFloat(lineRaw);
-    if(!desc || !names.has(subject) || isNaN(line) || line < 0 || !unit){
-      alert(`Could not import this row:\n${row}`);
-      return;
-    }
-    parsed.push({
-      id: S.nextId++,
-      desc,
-      subject,
-      creator: S.current,
-      cat: categoryRaw || 'Other',
-      unit,
-      line,
-      status: 'open',
-      result: null,
-      wagers: [],
-    });
+    if(!desc||!names.has(subject)||isNaN(line)||line<0||!unit){alert(`Could not import:\n${row}`);return;}
+    parsed.push({id:S.nextId++,desc,subject,creator:S.current,cat:categoryRaw||'Other',unit,line,status:'open',result:null,wagers:[]});
   }
-
   S.bets.push(...parsed);
   document.getElementById('f-bulk').value='';
-  saveRemoteState();
-  alert(`Imported ${parsed.length} line${parsed.length===1?'':'s'}`);
-  dt('all');
+  saveRemote(); alert(`Imported ${parsed.length} line${parsed.length===1?'':'s'}`); dt('all');
 }
 
+function clearAllLines(){
+  if(!confirm('Delete all lines? This cannot be undone.'))return;
+  S.bets=[]; S.nextId=1; saveRemote(); dt('create');
+}
+
+/* ── Settle ── */
 function openSettle(id){
   S.settleId=id; S.settleChoice=null;
   const b=S.bets.find(x=>x.id===id);
@@ -614,31 +1168,24 @@ function openSettle(id){
     <div class="settle-opt under" onclick="pickSettle('under',this)">UNDER ${b.line} — stayed below</div>`;
   show('s-settle');
 }
-function pickSettle(val,el){
-  S.settleChoice=val;
-  document.querySelectorAll('.settle-opt').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-}
+function pickSettle(val,el){ S.settleChoice=val; document.querySelectorAll('.settle-opt').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); }
 function closeSettle(){ show('s-main'); dt('my'); }
 function confirmSettle(){
   if(!S.settleChoice){alert('Select a result');return;}
-  const b=S.bets.find(x=>x.id===S.settleId);
-  b.status='settled'; b.result=S.settleChoice;
-  saveRemoteState();
-  show('s-main'); dt('my');
+  S.bets.find(x=>x.id===S.settleId).status='settled';
+  S.bets.find(x=>x.id===S.settleId).result=S.settleChoice;
+  saveRemote(); show('s-main'); dt('my');
 }
 
+/* ── P&L ── */
 function calcPnl(person){
   let t=0;
   S.bets.filter(b=>b.status==='settled').forEach(b=>{
-    const mine=b.wagers.find(w=>w.person===person);
-    if(!mine)return;
+    const mine=b.wagers.find(w=>w.person===person); if(!mine)return;
     if(mine.side===b.result){
-      const losers=b.wagers.filter(w=>w.side!==b.result);
-      const winners=b.wagers.filter(w=>w.side===b.result);
-      const lostPool=losers.reduce((s,w)=>s+w.amount,0);
-      const wonPool=winners.reduce((s,w)=>s+w.amount,0);
-      t+=lostPool*(mine.amount/wonPool);
+      const lost=b.wagers.filter(w=>w.side!==b.result).reduce((s,w)=>s+w.amount,0);
+      const won=b.wagers.filter(w=>w.side===b.result).reduce((s,w)=>s+w.amount,0);
+      t+=lost*(mine.amount/won);
     } else { t-=mine.amount; }
   });
   return t;
@@ -646,10 +1193,14 @@ function calcPnl(person){
 function wins(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side===b.result)).length; }
 function losses(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(w=>w.person===p&&w.side!==b.result)).length; }
 
+/* ── init ── */
 async function init(){
-  await loadRemoteState();
+  await loadRemote();
   renderPlayers();
+  show('s-players');
+  document.getElementById('s-main').style.display='none';
 }
-
 init();
 </script>
+</body>
+</html>
