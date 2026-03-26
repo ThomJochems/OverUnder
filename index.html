@@ -383,6 +383,81 @@ html, body {
 .wager-over { color: var(--green-dark); font-weight: 600; }
 .wager-under { color: var(--red-dark); font-weight: 600; }
 
+.wager-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wager-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+}
+
+.wager-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wager-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.wager-item-meta {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.mini-btn {
+  border: 1px solid var(--border-2);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mini-btn.danger {
+  border-color: var(--red-mid);
+  color: var(--red-dark);
+  background: var(--red-light);
+}
+
+.manage-box {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.manage-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+
+.manage-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 .result-pill {
   display: inline-block;
   font-size: 12px;
@@ -836,6 +911,7 @@ function av(name,sz=44,fs=16){
   const c=pc(name);
   return `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:600;flex-shrink:0">${name.slice(0,2).toUpperCase()}</div>`;
 }
+function isPrivilegedUser(name){ return name==='Thom'; }
 
 /* ── remote storage ── */
 function hasRemote(){ return Boolean(CONFIG.jsonBinId && CONFIG.apiKey); }
@@ -917,6 +993,7 @@ function dt(tab){
 /* ── bet card ── */
 function betCardHtml(b, me){
   const isSubject=b.subject===me;
+  const canManage=isPrivilegedUser(me);
   const myWager=b.wagers.find(w=>w.person===me);
   const overPool=b.wagers.filter(w=>w.side==='over').reduce((s,w)=>s+w.amount,0);
   const underPool=b.wagers.filter(w=>w.side==='under').reduce((s,w)=>s+w.amount,0);
@@ -928,7 +1005,7 @@ function betCardHtml(b, me){
     ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:20px;font-weight:600;font-family:var(--mono)">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
     : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-num">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
 
-  let actionHtml='', wagerHtml='', resultHtml='', settleHtml='';
+  let actionHtml='', wagerHtml='', resultHtml='', settleHtml='', manageHtml='';
 
   if(myWager){
     const cls=myWager.side==='over'?'wager-over':'wager-under';
@@ -958,13 +1035,33 @@ function betCardHtml(b, me){
     </div>`;
   }
 
+  if(canManage){
+    const wagerRows=b.wagers.length
+      ? `<div class="wager-stack">${b.wagers.map((w,i)=>`
+          <div class="wager-item">
+            <div class="wager-item-main">
+              <div class="wager-item-name">${w.person}</div>
+              <div class="wager-item-meta">${w.side.toUpperCase()} | EUR ${w.amount}</div>
+            </div>
+            <button class="mini-btn danger" onclick="removeWager(${b.id},${i})">Remove bet</button>
+          </div>`).join('')}</div>`
+      : `<div class="wager-item-meta">No placed bets yet.</div>`;
+    manageHtml=`<div class="manage-box">
+      <div class="manage-title">Thom controls</div>
+      ${wagerRows}
+      <div class="manage-actions">
+        <button class="mini-btn danger" onclick="removeBetline(${b.id})">Remove line</button>
+      </div>
+    </div>`;
+  }
+
   return `<div class="bet-card">
     ${subjWarn}
     <div class="bet-head"><div class="${titleClass}">${titleText}</div>${badge}</div>
     <div class="bet-meta">Subject: ${isSubject?'<strong>you</strong>':b.subject} · ${b.cat||'General'}</div>
     ${lineDisplay}
     ${poolLine}
-    ${actionHtml}${wagerHtml}${resultHtml}${settleHtml}
+    ${actionHtml}${wagerHtml}${resultHtml}${settleHtml}${manageHtml}
   </div>`;
 }
 
@@ -1155,6 +1252,35 @@ function bulkCreateBets(){
 function clearAllLines(){
   if(!confirm('Delete all lines? This cannot be undone.'))return;
   S.bets=[]; S.nextId=1; saveRemote(); dt('create');
+}
+
+function removeWager(betId, wagerIndex){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to remove bets'); return; }
+  const bet=S.bets.find(x=>x.id===betId);
+  if(!bet||!bet.wagers[wagerIndex]) return;
+  const wager=bet.wagers[wagerIndex];
+  if(!confirm(`Remove ${wager.person}'s ${wager.side.toUpperCase()} bet of EUR ${wager.amount}?`)) return;
+  bet.wagers.splice(wagerIndex,1);
+  saveRemote();
+  refreshCurrentTab();
+}
+
+function removeBetline(betId){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to remove lines'); return; }
+  const betIndex=S.bets.findIndex(x=>x.id===betId);
+  if(betIndex===-1) return;
+  const bet=S.bets[betIndex];
+  if(!confirm(`Remove the line "${bet.desc}"? This also removes all placed bets on it.`)) return;
+  S.bets.splice(betIndex,1);
+  saveRemote();
+  refreshCurrentTab();
+}
+
+function refreshCurrentTab(){
+  const active=document.querySelector('#s-main .page.active');
+  if(!active) return;
+  const tab=active.id.replace('p-','');
+  dt(tab);
 }
 
 /* ── Settle ── */
