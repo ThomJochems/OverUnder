@@ -777,14 +777,7 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
 
 <!-- ═══ MAIN DASHBOARD ═══ -->
 <div id="s-main" style="display:none">
-  <div class="topbar">
-    <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
-    <button class="btn btn-sm" onclick="logout()">Lock</button>
-  </div>
-  <div class="user-bar">
-    <div id="main-av"></div>
-    <div class="user-bar-name" id="main-name"></div>
-  </div>
+  <div id="main-topbar"></div>
 
   <!-- My bets -->
   <div class="page active" id="p-my">
@@ -891,7 +884,7 @@ const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
   allFilter: null, saving: false, nextId: 4,
-  pendingWager: null,
+  pendingWager: null, showAllBets: false,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
      unit:"complaints", line:2.5, status:"open", result:null, counter:0,
@@ -969,11 +962,31 @@ function checkPin(){
   }
 }
 function enterDash(){
-  document.getElementById('main-av').innerHTML=av(S.current,36,13);
-  document.getElementById('main-name').textContent=S.current;
+  renderTopbar();
   document.getElementById('s-pin').style.display='none';
   document.getElementById('s-pin').classList.remove('active');
   show('s-main'); dt('my');
+}
+function renderTopbar(){
+  const toggleBtn = isPrivilegedUser(S.current) ? `<button class="btn btn-sm" onclick="toggleBetVisibility()">${S.showAllBets ? 'Hide bets' : 'Show bets'}</button>` : '';
+  document.getElementById('main-topbar').innerHTML=`
+    <div class="topbar">
+      <div class="logo"><span class="logo-o">Over</span><span class="logo-u">Under</span></div>
+      <div style="display:flex;gap:8px;">
+        ${toggleBtn}
+        <button class="btn btn-sm" onclick="logout()">Lock</button>
+      </div>
+    </div>
+    <div class="user-bar">
+      <div id="main-av">${av(S.current,36,13)}</div>
+      <div class="user-bar-name" id="main-name">${S.current}</div>
+    </div>`;
+}
+
+function toggleBetVisibility(){
+  S.showAllBets = !S.showAllBets;
+  renderTopbar();
+  refreshCurrentTab();
 }
 function logout(){ S.current=null; S.buf=''; show('s-players'); }
 function goBack(){ S.buf=''; S.confirmBuf=''; document.getElementById('s-pin').style.display='none'; document.getElementById('s-pin').classList.remove('active'); document.getElementById('s-players').style.display='block'; }
@@ -1038,7 +1051,7 @@ function betCardHtml(b, me){
   }
 
   if(canManage){
-    const wagerRows=b.wagers.length
+    const wagerRows=S.showAllBets && b.wagers.length
       ? `<div class="wager-stack">${b.wagers.map((w,i)=>`
           <div class="wager-item">
             <div class="wager-item-main">
@@ -1047,7 +1060,7 @@ function betCardHtml(b, me){
             </div>
             <button class="mini-btn danger" onclick="removeWager(${b.id},${i})">Remove bet</button>
           </div>`).join('')}</div>`
-      : `<div class="wager-item-meta">No placed bets yet.</div>`;
+      : S.showAllBets ? `<div class="wager-item-meta">No placed bets yet.</div>` : '';
     manageHtml=`<div class="manage-box">
       <div class="manage-title">Thom controls</div>
       ${wagerRows}
