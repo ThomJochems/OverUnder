@@ -894,13 +894,13 @@ const S = {
   pendingWager: null,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
-     unit:"complaints", line:2.5, status:"open", result:null,
+     unit:"complaints", line:2.5, status:"open", result:null, counter:0,
      wagers:[{person:"Aidan",amount:5,side:"over"},{person:"Jorik",amount:4,side:"under"}]},
     {id:2, desc:"Hours Thijmen spends navigating vs following others", subject:"Thijmen", creator:"Thijs",
-     unit:"hours", line:4.5, status:"open", result:null,
+     unit:"hours", line:4.5, status:"open", result:null, counter:0,
      wagers:[{person:"Thijs",amount:5,side:"over"},{person:"Thom",amount:5,side:"under"},{person:"Aidan",amount:5,side:"over"}]},
     {id:3, desc:"Times Jorik is last one ready in the morning", subject:"Jorik", creator:"Chris",
-     unit:"mornings", line:3.5, status:"settled", result:"over",
+     unit:"mornings", line:3.5, status:"settled", result:"over", counter:0,
      wagers:[{person:"Chris",amount:5,side:"over"},{person:"Thijmen",amount:4,side:"under"}]},
   ]
 };
@@ -1005,6 +1005,8 @@ function betCardHtml(b, me){
     ? `<div class="line-box"><span class="line-label">Line</span><span style="filter:blur(4px);font-size:20px;font-weight:600;font-family:var(--mono)">?.?</span><span class="line-unit" style="filter:blur(4px)">${b.unit}</span></div>`
     : `<div class="line-box"><span class="line-label">Line</span><div><span class="line-num">${b.line}</span><span class="line-unit">${b.unit}</span></div></div>`;
 
+  const counterDisplay=!isSubject ? `<div class="line-box"><span class="line-label">Count</span><div><span class="line-num">${b.counter || 0}</span><span class="line-unit">${b.unit}</span></div></div>` : '';
+
   let actionHtml='', wagerHtml='', resultHtml='', settleHtml='', manageHtml='';
 
   if(myWager){
@@ -1050,6 +1052,8 @@ function betCardHtml(b, me){
       <div class="manage-title">Thom controls</div>
       ${wagerRows}
       <div class="manage-actions">
+        <button class="mini-btn" onclick="incrementCounter(${b.id})">Increment counter (+1)</button>
+        <button class="mini-btn" onclick="decrementCounter(${b.id})">Decrement counter (-1)</button>
         <button class="mini-btn danger" onclick="removeBetline(${b.id})">Remove line</button>
       </div>
     </div>`;
@@ -1060,6 +1064,7 @@ function betCardHtml(b, me){
     <div class="bet-head"><div class="${titleClass}">${titleText}</div>${badge}</div>
     <div class="bet-meta">Subject: ${isSubject?'<strong>you</strong>':b.subject} · ${b.cat||'General'}</div>
     ${lineDisplay}
+    ${counterDisplay}
     ${poolLine}
     ${actionHtml}${wagerHtml}${resultHtml}${settleHtml}${manageHtml}
   </div>`;
@@ -1203,7 +1208,7 @@ function createBet(){
   if(isNaN(line)||line<0){alert('Set a line number');return;}
   if(isNaN(amt)||amt<=0){alert('Set your wager amount');return;}
   if(amt>5){alert('Maximum bet is €5');return;}
-  S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,wagers:[{person:S.current,amount:amt,side}]});
+  S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,counter:0,wagers:[{person:S.current,amount:amt,side}]});
   saveRemote(); dt('my');
 }
 
@@ -1243,7 +1248,7 @@ function bulkCreateBets(){
     const [desc,subject,lineRaw,unit,categoryRaw]=parts;
     const line=parseFloat(lineRaw);
     if(!desc||!names.has(subject)||isNaN(line)||line<0||!unit){alert(`Could not import:\n${row}`);return;}
-    parsed.push({id:S.nextId++,desc,subject,creator:S.current,cat:categoryRaw||'Other',unit,line,status:'open',result:null,wagers:[]});
+    parsed.push({id:S.nextId++,desc,subject,creator:S.current,cat:categoryRaw||'Other',unit,line,status:'open',result:null,counter:0,wagers:[]});
   }
   S.bets.push(...parsed);
   document.getElementById('f-bulk').value='';
@@ -1262,13 +1267,20 @@ function clearAllBets(){
   saveRemote(); dt('create');
 }
 
-function removeWager(betId, wagerIndex){
-  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to remove bets'); return; }
+function incrementCounter(betId){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to increment counters'); return; }
   const bet=S.bets.find(x=>x.id===betId);
-  if(!bet||!bet.wagers[wagerIndex]) return;
-  const wager=bet.wagers[wagerIndex];
-  if(!confirm(`Remove ${wager.person}'s ${wager.side.toUpperCase()} bet of EUR ${wager.amount}?`)) return;
-  bet.wagers.splice(wagerIndex,1);
+  if(!bet) return;
+  bet.counter = (bet.counter || 0) + 1;
+  saveRemote();
+  refreshCurrentTab();
+}
+
+function decrementCounter(betId){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to decrement counters'); return; }
+  const bet=S.bets.find(x=>x.id===betId);
+  if(!bet) return;
+  bet.counter = Math.max(0, (bet.counter || 0) - 1);
   saveRemote();
   refreshCurrentTab();
 }
