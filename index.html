@@ -1186,6 +1186,7 @@ function renderCreate(){
     <div class="form-section">
       <div class="form-section-title" style="color:var(--red)">Danger zone</div>
       <button class="btn btn-red btn-full" onclick="clearAllLines()">Clear all lines</button>
+      ${isPrivilegedUser(me) ? '<button class="btn btn-red btn-full" style="margin-top:10px" onclick="clearAllBets()">Clear all bets</button>' : ''}
     </div>`;
 }
 
@@ -1252,6 +1253,13 @@ function bulkCreateBets(){
 function clearAllLines(){
   if(!confirm('Delete all lines? This cannot be undone.'))return;
   S.bets=[]; S.nextId=1; saveRemote(); dt('create');
+}
+
+function clearAllBets(){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to clear all bets'); return; }
+  if(!confirm('Remove all bets placed by all players on all lines? This cannot be undone.'))return;
+  S.bets.forEach(bet => bet.wagers = []);
+  saveRemote(); dt('create');
 }
 
 function removeWager(betId, wagerIndex){
