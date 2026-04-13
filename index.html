@@ -870,6 +870,7 @@ const CONFIG = {
   apiKey: '$2a$10$TjKftwh/7DpLfmx2r2ccj.okpkVZTpdNqZh7WycR9dB6ssH1nQF9K',
   accessKey: '',
 };
+const LOCAL_STATE_KEY = 'overunder-state-v1';
 
 const PLAYERS = [
   {name:'Aidan',   bg:'#E6F1FB', fg:'#185FA5'},
@@ -884,7 +885,7 @@ const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
   allFilter: null, saving: false, nextId: 4,
-  pendingWager: null, showAllBets: false, remoteReady: false, remoteLoadPromise: null,
+  pendingWager: null, showAllBets: false, remoteReady: false, remoteLoadPromise: null, lastUpdated: 0,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
      unit:"complaints", line:2.5, status:"open", result:null, counter:0,
@@ -909,9 +910,49 @@ function isPrivilegedUser(name){ return name==='Thom'; }
 /* ── remote storage ── */
 function hasRemote(){ return Boolean(CONFIG.jsonBinId && CONFIG.apiKey); }
 function hdrs(){ const h={'Content-Type':'application/json','X-Master-Key':CONFIG.apiKey}; if(CONFIG.accessKey)h['X-Access-Key']=CONFIG.accessKey; return h; }
-function exportState(){ return {pins:S.pins, nextId:S.nextId, bets:S.bets}; }
-function applyState(data){ if(!data||typeof data!=='object')return; if(data.pins)S.pins=data.pins; if(Array.isArray(data.bets))S.bets=data.bets; if(typeof data.nextId==='number')S.nextId=data.nextId; }
-async function loadRemote(){ if(!hasRemote())return; try{ const r=await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`,{headers:hdrs()}); if(!r.ok)throw new Error(); const d=await r.json(); applyState(d.record||d); }catch(e){ console.error(e); } }
+function exportState(){ return {pins:S.pins, nextId:S.nextId, bets:S.bets, lastUpdated:S.lastUpdated}; }
+function applyState(data){
+  if(!data||typeof data!=='object')return false;
+  const incomingUpdated=typeof data.lastUpdated==='number' ? data.lastUpdated : 0;
+  if(S.lastUpdated && incomingUpdated===0) return false;
+  if(S.lastUpdated && incomingUpdated && incomingUpdated < S.lastUpdated) return false;
+  if(data.pins)S.pins=data.pins;
+  if(Array.isArray(data.bets))S.bets=data.bets;
+  if(typeof data.nextId==='number')S.nextId=data.nextId;
+  if(incomingUpdated) S.lastUpdated=incomingUpdated;
+  return true;
+}
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(LOCAL_STATE_KEY);
+    if(!raw) return false;
+    return applyState(JSON.parse(raw));
+  }catch(e){
+    console.error(e);
+    return false;
+  }
+}
+function saveLocal(){
+  try{
+    localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(exportState()));
+  }catch(e){
+    console.error(e);
+  }
+}
+function persistState(){
+  S.lastUpdated=Date.now();
+  saveLocal();
+  saveRemote();
+}
+async function loadRemote(){
+  if(!hasRemote())return;
+  try{
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`,{headers:hdrs()});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    if(applyState(d.record||d)) saveLocal();
+  }catch(e){ console.error(e); }
+}
 async function saveRemote(){ if(!hasRemote()||S.saving)return; S.saving=true; try{ await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(exportState())}); }catch(e){ console.error(e); }finally{ S.saving=false; } }
 function ensureRemoteLoaded(){
   if(S.remoteReady || !hasRemote()) return Promise.resolve();
@@ -945,8 +986,8 @@ function renderPlayers(){
 }
 
 /* ── PIN flow ── */
-async function selPlayer(name){
-  await ensureRemoteLoaded();
+function selPlayer(name){
+  ensureRemoteLoaded();
   S.current=name; S.buf=''; S.confirmBuf=''; S.allFilter=null;
   document.getElementById('pin-av').innerHTML=`<div class="pin-big-avatar" style="background:${pc(name).bg};color:${pc(name).fg}">${name.slice(0,2).toUpperCase()}</div>`;
   if(S.pins[name]){ document.getElementById('pin-title').textContent=`Hey ${name}!`; document.getElementById('pin-sub').textContent='Enter your PIN to continue'; S.pinMode='enter'; }
@@ -965,7 +1006,7 @@ function checkPin(){
   const name=S.current;
   if(S.pinMode==='set'){
     if(!S.confirmBuf){ S.confirmBuf=S.buf; S.buf=''; document.getElementById('pin-sub').textContent='Confirm your PIN'; updDots(); return; }
-    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; saveRemote(); enterDash(); }
+    if(S.buf===S.confirmBuf){ S.pins[name]=S.buf; S.confirmBuf=''; persistState(); enterDash(); }
     else{ updDots(true); setTimeout(()=>{ S.buf=''; S.confirmBuf=''; updDots(); document.getElementById('pin-sub').textContent="PINs didn't match — try again"; },600); }
   } else {
     if(S.buf===S.pins[name]){ enterDash(); }
@@ -1233,7 +1274,7 @@ function createBet(){
   if(isNaN(amt)||amt<=0){alert('Set your wager amount');return;}
   if(amt>5){alert('Maximum bet is €5');return;}
   S.bets.push({id:S.nextId++,desc,subject:subj,creator:S.current,cat,unit,line,status:'open',result:null,counter:0,wagers:[{person:S.current,amount:amt,side}]});
-  saveRemote(); dt('my');
+  persistState(); dt('my');
 }
 
 /* ── Wager flow (native screen instead of prompt) ── */
@@ -1257,7 +1298,7 @@ function confirmWager(){
   const {id,side}=S.pendingWager;
   S.bets.find(x=>x.id===id).wagers.push({person:S.current,amount:amt,side});
   S.pendingWager=null;
-  saveRemote(); show('s-main'); dt('my');
+  persistState(); show('s-main'); dt('my');
 }
 
 function bulkCreateBets(){
@@ -1276,19 +1317,19 @@ function bulkCreateBets(){
   }
   S.bets.push(...parsed);
   document.getElementById('f-bulk').value='';
-  saveRemote(); alert(`Imported ${parsed.length} line${parsed.length===1?'':'s'}`); dt('all');
+  persistState(); alert(`Imported ${parsed.length} line${parsed.length===1?'':'s'}`); dt('all');
 }
 
 function clearAllLines(){
   if(!confirm('Delete all lines? This cannot be undone.'))return;
-  S.bets=[]; S.nextId=1; saveRemote(); dt('create');
+  S.bets=[]; S.nextId=1; persistState(); dt('create');
 }
 
 function clearAllBets(){
   if(!isPrivilegedUser(S.current)){ alert('You do not have permission to clear all bets'); return; }
   if(!confirm('Remove all bets placed by all players on all lines? This cannot be undone.'))return;
   S.bets.forEach(bet => bet.wagers = []);
-  saveRemote(); dt('create');
+  persistState(); dt('create');
 }
 
 function incrementCounter(betId){
@@ -1296,7 +1337,7 @@ function incrementCounter(betId){
   const bet=S.bets.find(x=>x.id===betId);
   if(!bet) return;
   bet.counter = (bet.counter || 0) + 1;
-  saveRemote();
+  persistState();
   refreshCurrentTab();
 }
 
@@ -1305,7 +1346,7 @@ function decrementCounter(betId){
   const bet=S.bets.find(x=>x.id===betId);
   if(!bet) return;
   bet.counter = Math.max(0, (bet.counter || 0) - 1);
-  saveRemote();
+  persistState();
   refreshCurrentTab();
 }
 
@@ -1316,7 +1357,7 @@ function removeWager(betId, wagerIndex){
   const wager=bet.wagers[wagerIndex];
   if(!confirm(`Remove ${wager.person}'s ${wager.side.toUpperCase()} bet of EUR ${wager.amount}?`)) return;
   bet.wagers.splice(wagerIndex,1);
-  saveRemote();
+  persistState();
   refreshCurrentTab();
 }
 
@@ -1327,7 +1368,7 @@ function removeBetline(betId){
   const bet=S.bets[betIndex];
   if(!confirm(`Remove the line "${bet.desc}"? This also removes all placed bets on it.`)) return;
   S.bets.splice(betIndex,1);
-  saveRemote();
+  persistState();
   refreshCurrentTab();
 }
 
@@ -1355,7 +1396,7 @@ function confirmSettle(){
   if(!S.settleChoice){alert('Select a result');return;}
   S.bets.find(x=>x.id===S.settleId).status='settled';
   S.bets.find(x=>x.id===S.settleId).result=S.settleChoice;
-  saveRemote(); show('s-main'); dt('my');
+  persistState(); show('s-main'); dt('my');
 }
 
 /* ── P&L ── */
@@ -1376,6 +1417,7 @@ function losses(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(
 
 /* ── init ── */
 async function init(){
+  loadLocal();
   renderPlayers();
   show('s-players');
   document.getElementById('s-main').style.display='none';
