@@ -884,7 +884,7 @@ const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
   allFilter: null, saving: false, nextId: 4,
-  pendingWager: null, showAllBets: false,
+  pendingWager: null, showAllBets: false, remoteReady: false, remoteLoadPromise: null,
   bets: [
     {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
      unit:"complaints", line:2.5, status:"open", result:null, counter:0,
@@ -913,6 +913,16 @@ function exportState(){ return {pins:S.pins, nextId:S.nextId, bets:S.bets}; }
 function applyState(data){ if(!data||typeof data!=='object')return; if(data.pins)S.pins=data.pins; if(Array.isArray(data.bets))S.bets=data.bets; if(typeof data.nextId==='number')S.nextId=data.nextId; }
 async function loadRemote(){ if(!hasRemote())return; try{ const r=await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}/latest`,{headers:hdrs()}); if(!r.ok)throw new Error(); const d=await r.json(); applyState(d.record||d); }catch(e){ console.error(e); } }
 async function saveRemote(){ if(!hasRemote()||S.saving)return; S.saving=true; try{ await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.jsonBinId}`,{method:'PUT',headers:hdrs(),body:JSON.stringify(exportState())}); }catch(e){ console.error(e); }finally{ S.saving=false; } }
+function ensureRemoteLoaded(){
+  if(S.remoteReady || !hasRemote()) return Promise.resolve();
+  if(!S.remoteLoadPromise){
+    S.remoteLoadPromise=loadRemote().finally(()=>{
+      S.remoteReady=true;
+      S.remoteLoadPromise=null;
+    });
+  }
+  return S.remoteLoadPromise;
+}
 
 /* ── screen switching ── */
 const SCREENS = ['s-players','s-pin','s-main','s-settle','s-wager'];
@@ -935,7 +945,8 @@ function renderPlayers(){
 }
 
 /* ── PIN flow ── */
-function selPlayer(name){
+async function selPlayer(name){
+  await ensureRemoteLoaded();
   S.current=name; S.buf=''; S.confirmBuf=''; S.allFilter=null;
   document.getElementById('pin-av').innerHTML=`<div class="pin-big-avatar" style="background:${pc(name).bg};color:${pc(name).fg}">${name.slice(0,2).toUpperCase()}</div>`;
   if(S.pins[name]){ document.getElementById('pin-title').textContent=`Hey ${name}!`; document.getElementById('pin-sub').textContent='Enter your PIN to continue'; S.pinMode='enter'; }
@@ -1298,6 +1309,17 @@ function decrementCounter(betId){
   refreshCurrentTab();
 }
 
+function removeWager(betId, wagerIndex){
+  if(!isPrivilegedUser(S.current)){ alert('You do not have permission to remove bets'); return; }
+  const bet=S.bets.find(x=>x.id===betId);
+  if(!bet||!bet.wagers[wagerIndex]) return;
+  const wager=bet.wagers[wagerIndex];
+  if(!confirm(`Remove ${wager.person}'s ${wager.side.toUpperCase()} bet of EUR ${wager.amount}?`)) return;
+  bet.wagers.splice(wagerIndex,1);
+  saveRemote();
+  refreshCurrentTab();
+}
+
 function removeBetline(betId){
   if(!isPrivilegedUser(S.current)){ alert('You do not have permission to remove lines'); return; }
   const betIndex=S.bets.findIndex(x=>x.id===betId);
@@ -1354,10 +1376,10 @@ function losses(p){ return S.bets.filter(b=>b.status==='settled'&&b.wagers.find(
 
 /* ── init ── */
 async function init(){
-  await loadRemote();
   renderPlayers();
   show('s-players');
   document.getElementById('s-main').style.display='none';
+  ensureRemoteLoaded();
 }
 init();
 </script>
