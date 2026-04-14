@@ -884,19 +884,9 @@ const PLAYERS = [
 const S = {
   pins: {}, buf: '', pinMode: null, confirmBuf: '',
   current: null, settleId: null, settleChoice: null,
-  allFilter: null, saving: false, nextId: 4,
+  allFilter: null, saving: false, nextId: 1,
   pendingWager: null, showAllBets: false, remoteReady: false, remoteLoadPromise: null, lastUpdated: 0,
-  bets: [
-    {id:1, desc:"Times Chris complains about the food", subject:"Chris", creator:"Aidan",
-     unit:"complaints", line:2.5, status:"open", result:null, counter:0,
-     wagers:[{person:"Aidan",amount:5,side:"over"},{person:"Jorik",amount:4,side:"under"}]},
-    {id:2, desc:"Hours Thijmen spends navigating vs following others", subject:"Thijmen", creator:"Thijs",
-     unit:"hours", line:4.5, status:"open", result:null, counter:0,
-     wagers:[{person:"Thijs",amount:5,side:"over"},{person:"Thom",amount:5,side:"under"},{person:"Aidan",amount:5,side:"over"}]},
-    {id:3, desc:"Times Jorik is last one ready in the morning", subject:"Jorik", creator:"Chris",
-     unit:"mornings", line:3.5, status:"settled", result:"over", counter:0,
-     wagers:[{person:"Chris",amount:5,side:"over"},{person:"Thijmen",amount:4,side:"under"}]},
-  ]
+  bets: []
 };
 
 /* ── helpers ── */
@@ -960,6 +950,7 @@ function ensureRemoteLoaded(){
     S.remoteLoadPromise=loadRemote().finally(()=>{
       S.remoteReady=true;
       S.remoteLoadPromise=null;
+      refreshCurrentTab();
     });
   }
   return S.remoteLoadPromise;
@@ -967,6 +958,7 @@ function ensureRemoteLoaded(){
 
 /* ── screen switching ── */
 const SCREENS = ['s-players','s-pin','s-main','s-settle','s-wager'];
+let activeTab = 'my';
 function show(id){
   SCREENS.forEach(s=>{
     const el=document.getElementById(s);
@@ -1045,6 +1037,7 @@ function goBack(){ S.buf=''; S.confirmBuf=''; document.getElementById('s-pin').s
 
 /* ── tab routing ── */
 function dt(tab){
+  activeTab=tab;
   ['my','all','lb','create'].forEach(t=>{
     const pg=document.getElementById('p-'+t); if(pg) pg.classList.toggle('active',t===tab);
     [1,2,3,4].forEach(n=>{ const el=document.getElementById(`dtab${n>1?n:''}-${t}`); if(el) el.classList.toggle('active',t===tab); });
@@ -1373,10 +1366,9 @@ function removeBetline(betId){
 }
 
 function refreshCurrentTab(){
-  const active=document.querySelector('#s-main .page.active');
-  if(!active) return;
-  const tab=active.id.replace('p-','');
-  dt(tab);
+  const mainVisible=document.getElementById('s-main')?.style.display==='block';
+  if(!mainVisible) return;
+  dt(activeTab);
 }
 
 /* ── Settle ── */
